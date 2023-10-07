@@ -33,7 +33,7 @@ jobs:
             - name: Parse toml to get worker name
               id: determine_worker_name
               run: |
-                tomlq -r .name .\wrangler.toml | echo result=$(cat) >> $GITHUB_OUTPUT
+                tomlq -r .name ./wrangler.toml | echo result=$(cat) >> $GITHUB_OUTPUT
 
             - name: Build and deploy worker
               env:
@@ -42,4 +42,4 @@ jobs:
               run: |
                 wrangler deploy
                 echo "${{ secrets.TELEGRAM_BOT_TOKEN }}" | wrangler secret put TELEGRAM_BOT_TOKEN
-                echo "the subdomain is ${{ steps.determine_subdomain.outputs.result }}.${{ steps.determine_subdomain.outputs.result }}.workers.dev"
+                echo "the subdomain is ${{ steps.determine_worker_name.outputs.result }}.${{ steps.determine_subdomain.outputs.result }}.workers.dev"

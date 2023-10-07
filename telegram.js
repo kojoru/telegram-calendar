@@ -22,9 +22,9 @@ class TelegramAPI {
         return response.json();
     }
 
-    async setWebhook(url, secretToken) {
+    async setWebhook(externalUrl, secretToken) {
         const params = {
-            url: url,
+            url: externalUrl,
         };
         if (secretToken) {
             params.secret_token = secretToken;

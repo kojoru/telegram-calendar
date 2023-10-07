@@ -33,7 +33,7 @@ router.post('/telegramMessage', async (request, env) => {
 	const messageToSave = JSON.stringify(json);
 	await env.DB.prepare(
 		"INSERT INTO messages (message) VALUES (?)"
-	).bind(returnData).run();
+	).bind(messageToSave).run();
 
 	return new Response('Success', { status: 200 });
 });

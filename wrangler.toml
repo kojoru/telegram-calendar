@@ -1,4 +1,4 @@
-name = "telegram-calendar" # todo
+name = "telegram-calendar"
 main = "index.js"
 compatibility_date = "2022-05-03"
 

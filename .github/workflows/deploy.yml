@@ -57,4 +57,7 @@ jobs:
 
             - name: Send init command to worker
               run: |
-                curl -X POST -H "Authorization: Bearer ${{ steps.deploy_worker.outputs.init_secret }}" -H "Content-Type: application/json" -d '{"command": "init"}' https://${{ steps.deploy_worker.outputs.domain }}/init
+                curl -X POST -H "Authorization: Bearer ${{ steps.deploy_worker.outputs.init_secret }}" \
+                 -H "Content-Type: application/json" \
+                 -d '{"externalUrl": "https://${{ steps.deploy_worker.outputs.domain }}"}' \
+                 https://${{ steps.deploy_worker.outputs.domain }}/init

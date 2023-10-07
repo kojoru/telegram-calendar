@@ -1,4 +1,5 @@
 import { Router } from 'itty-router';
+import { Telegram } from './telegram';
 
 // Create a new router
 const router = Router();
@@ -68,7 +69,30 @@ router.post('/init', async (request, env, ctx) => {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	return new Response('Success', { status: 200 });
+	const { results } = await env.DB.prepare(
+        "SELECT * FROM settings WHERE name = ?"
+      )
+        .bind("telegram_security_code")
+        .all();
+
+	let token;
+	if (results.length === 0) {
+		// todo: less insane way of generating this
+		token = crypto.getRandomValues(new Uint8Array(16)).join("");
+		await env.DB.prepare(
+			"INSERT INTO settings (name, value) VALUES (?, ?)"
+		).bind("telegram_security_code", token).run();
+	} else {
+		token = results[0].value;
+	}
+
+	let json = await request.json();
+	let externalUrl = json.externalUrl;
+
+	let telegram = new Telegram(env.TELEGRAM_BOT_TOKEN);
+	let response = await telegram.setWebhook(`${externalUrl}/telegramMessage`, token);
+
+	return new Response('Success' + JSON.stringify(response), { status: 200 });
 });
 
 /*

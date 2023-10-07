@@ -13,7 +13,7 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Install Cloudflare Workers CLI and tomlq
-              run: /
+              run: |
                 npm install -g wrangler
                 pip install yq
 

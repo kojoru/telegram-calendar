@@ -63,6 +63,14 @@ router.post('/post', async request => {
 	});
 });
 
+router.post('/init', async (request, env, ctx) => {
+	if(request.headers.get('Authorization') !== `Bearer ${env.INIT_TOKEN}`) {
+		return new Response('Unauthorized', { status: 401 });
+	}
+
+	return new Response('Success', { status: 200 });
+});
+
 /*
 This is the last route we define, it will match anything that hasn't hit a route we've defined
 above, therefore it's useful as a 404 (and avoids us hitting worker exceptions, so make sure to include it!).

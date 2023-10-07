@@ -36,10 +36,18 @@ jobs:
                 tomlq -r .name ./wrangler.toml | echo result=$(cat) >> $GITHUB_OUTPUT
 
             - name: Build and deploy worker
+              id: deploy_worker
               env:
                 CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
                 CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
               run: |
                 wrangler deploy
                 echo "${{ secrets.TELEGRAM_BOT_TOKEN }}" | wrangler secret put TELEGRAM_BOT_TOKEN
-                echo "the subdomain is ${{ steps.determine_worker_name.outputs.result }}.${{ steps.determine_subdomain.outputs.result }}.workers.dev"
+                INIT_SECRET = $(openssl rand -base64 32)
+                echo $INIT_SECRET | wrangler secret put INIT_SECRET
+                echo init_secret=$INIT_SECRET >> $GITHUB_OUTPUT
+                echo domain=${{ steps.determine_worker_name.outputs.result }}.${{ steps.determine_subdomain.outputs.result }}.workers.dev >> $GITHUB_OUTPUT
+
+            - name: Send init command to worker
+              run: |
+                curl -X POST -H "Authorization: Bearer ${{ steps.deploy_worker.outputs.init_secret }}" -H "Content-Type: application/json" -d '{"command": "init"}' https://${{ steps.deploy_worker.outputs.domain }}/init

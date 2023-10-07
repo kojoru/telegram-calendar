@@ -64,8 +64,8 @@ router.post('/post', async request => {
 });
 
 router.post('/init', async (request, env, ctx) => {
-	if(request.headers.get('Authorization') !== `Bearer ${env.INIT_TOKEN}`) {
-		return new Response('Unauthorized. env:' + JSON.stringify(env) + '; ctx: ' + JSON.stringify(ctx), { status: 401 });
+	if(request.headers.get('Authorization') !== `Bearer ${env.INIT_SECRET}`) {
+		return new Response('Unauthorized', { status: 401 });
 	}
 
 	return new Response('Success', { status: 200 });

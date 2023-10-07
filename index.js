@@ -14,7 +14,6 @@ router.get('/', () => {
 
 router.post('/telegramMessage', async (request, env) => {
 
-	let json = await request.json();
 	const telegramProvidedToken = request.headers.get('X-Telegram-Bot-Api-Secret-Token');
 	const savedToken = await env.DB.prepare(
         "SELECT value FROM settings WHERE name = ?"
@@ -22,15 +21,23 @@ router.post('/telegramMessage', async (request, env) => {
         .bind("telegram_security_code")
         .first('value');
 
+	
 	if (telegramProvidedToken !== savedToken) {
-		console.log(`Token mismatch: ${telegramProvidedToken} !== ${savedToken}`);
 		return new Response('Unauthorized', { status: 401 });
-	} else {
-		console.log(`Token match: ${telegramProvidedToken} === ${savedToken}`);
 	}
 
+	let json = await request.json();
+
+	const telegram = new Telegram(env.TELEGRAM_BOT_TOKEN);
+	const chatId = json.message.chat.id;
+	const reply_to_message_id = json.message.message_id;
+
 	// Serialize the JSON to a string.
-	const messageToSave = JSON.stringify(json);
+	const messageToSave = JSON.stringify(json, null, 2);
+
+	// Send a message to the chat acknowledging receipt of their message
+	await telegram.sendMessage(chatId, "```json" + messageToSave + "```", 'MarkdownV2', reply_to_message_id);	
+
 	await env.DB.prepare(
 		"INSERT INTO messages (message) VALUES (?)"
 	).bind(messageToSave).run();

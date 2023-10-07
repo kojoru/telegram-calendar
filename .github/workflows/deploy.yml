@@ -55,6 +55,13 @@ jobs:
                 echo init_secret=$INIT_SECRET >> $GITHUB_OUTPUT
                 echo domain=${{ steps.determine_worker_name.outputs.result }}.${{ steps.determine_subdomain.outputs.result }}.workers.dev >> $GITHUB_OUTPUT
 
+            - name: Deploy webapp to Cloudflare Pages
+              working-directory: ./webapp
+              env:
+                CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
+                CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+              run: |
+                npm pages:deploy --project-name ${{ steps.determine_worker_name.outputs.result }}
             - name: Send init command to worker
               run: |
                 curl -X POST -H "Authorization: Bearer ${{ steps.deploy_worker.outputs.init_secret }}" \

@@ -19,12 +19,14 @@ jobs:
               run: npm install --production
 
             - name: Make the request to determine the subdomain
+              id: make_request
               env: 
                 CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
                 CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
               run: |
                 curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" \
-                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" 
+                -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result' | echo ::set-output name=subdomain::$(cat)
+                tomlq -r .name .\wrangler.toml | echo ::set-output name=worker_name::$(cat)
 
             - name: Build and deploy worker
               env:
@@ -33,3 +35,4 @@ jobs:
               run: |
                 wrangler deploy
                 echo "${{ secrets.TELEGRAM_BOT_TOKEN }}" | wrangler secret put TELEGRAM_BOT_TOKEN
+                echo "the subdomain is ${{ steps.make_request.outputs.worker_name }}.${{ steps.make_request.outputs.subdomain }}.workers.dev"

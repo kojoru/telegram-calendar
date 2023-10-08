@@ -31,7 +31,8 @@ function App() {
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}<br/>
-          you are {initDataUnsafe?.user?.first_name}
+          you are {initDataUnsafe?.user?.first_name}<br/>
+          backend is {import.meta.env.VITE_BACKEND_URL}
         </button>
         <p>
           Edit <code>src/App.jsx</code> and save to test HMR

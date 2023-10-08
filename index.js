@@ -11,7 +11,7 @@ const handle = async (request, env, ctx) => {
 
 	return await router.handle(request, app, env, ctx);
 }
-const processMessage = async (message, app) => {
+const processMessage = async (json, app) => {
 	const {telegram, db} = app;
 	const chatId = json.message.chat.id;
 	const reply_to_message_id = json.message.message_id;
@@ -56,8 +56,8 @@ router.post('/telegramMessage', async (request, app) => {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	let message = await request.json();
-	await processMessage(message, app);
+	let messageJson = await request.json();
+	await processMessage(messageJson, app);
 
 	return new Response('Success', { status: 200 });
 });

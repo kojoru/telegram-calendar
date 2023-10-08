@@ -9,7 +9,7 @@ const handle = async (request, env, ctx) => {
 	let db = new Database(env.DB);
 	let app = {telegram, db};
 
-	router.handle(request, app, env, ctx);
+	return await router.handle(request, app, env, ctx);
 }
 const processMessage = async (message, app) => {
 	const {telegram, db} = app;

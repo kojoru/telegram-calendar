@@ -49,7 +49,7 @@ router.post('/telegramMessage', async (request, env) => {
 	const messageToSave = JSON.stringify(json, null, 2);
 	await telegram.sendMessage(chatId, "```json" + messageToSave + "```", 'MarkdownV2', reply_to_message_id);	
 
-	db.addMessage(messageToSave);
+	await db.addMessage(messageToSave);
 
 	return new Response('Success', { status: 200 });
 });

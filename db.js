@@ -1,5 +1,3 @@
-const TELEGRAM_API_BASE_URL = 'https://api.telegram.org/bot';
-
 class Database {
     constructor(databaseConnection) {
         this.db = databaseConnection;
@@ -9,6 +7,13 @@ class Database {
         return await this.db.prepare("SELECT value FROM settings WHERE name = ?")
             .bind(settingName)
             .first('value');
+    }
+
+    async getLatestUpdateId() {
+        let result = await this.db.prepare("SELECT updateId FROM messages ORDER BY updateId DESC LIMIT 1")
+            .first('updateId');
+        
+        return Number(result);
     }
 
     async initSetting(settingName, settingValue) {

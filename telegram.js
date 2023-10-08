@@ -1,9 +1,11 @@
+import { hmacSha256, hex } from './cryptoUtils.js';
 const TELEGRAM_API_BASE_URL = 'https://api.telegram.org/bot';
 
 class TelegramAPI {
-    constructor(token) {
+    constructor(token, useTestApi = false) {
         this.token = token;
-        this.apiBaseUrl = `${TELEGRAM_API_BASE_URL}${token}/`;
+        let testApiAddendum = useTestApi ? 'test/' : '';
+        this.apiBaseUrl = `${TELEGRAM_API_BASE_URL}${token}/${testApiAddendum}`;
     }
 
     async calculateHashes(initData) {
@@ -20,18 +22,30 @@ class TelegramAPI {
         }
       
         dataCheckString = dataCheckString.slice(0, -1);
-        data = Object.fromEntries(urlParams);
+        let data = Object.fromEntries(urlParams);
+        data.user = JSON.parse(data.user);
 
-        const secret = crypto
-            .createHmac("sha256", "WebAppData")
-            .update(this.token);
-
-        const calculatedHash = crypto
-            .createHmac("sha256", secret.digest())
-            .update(dataCheckString)
-            .digest("hex");
+        const secretKey = await hmacSha256(this.token, "WebAppData");
+        const calculatedHash = hex(await hmacSha256(dataCheckString, secretKey));
 
         return {expectedHash, calculatedHash, data};
+    }
+
+    async getUpdates(lastUpdateId) {
+        const url = `${this.apiBaseUrl}getUpdates`;
+        const params = {};
+        if (lastUpdateId) {
+            params.offset = lastUpdateId + 1;
+        }
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(params)
+        });
+        return response.json();
     }
 
     async sendMessage(chatId, text, parse_mode, reply_to_message_id) {

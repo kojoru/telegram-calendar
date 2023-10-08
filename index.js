@@ -5,9 +5,16 @@ import { Database } from './db';
 // Create a new router
 const router = Router();
 const handle = async (request, env, ctx) => {
-	let telegram = new Telegram(env.TELEGRAM_BOT_TOKEN);
+	let telegram = new Telegram(env.TELEGRAM_BOT_TOKEN, env.TELEGRAM_USE_TEST_API);
 	let db = new Database(env.DB);
-	let app = {telegram, db};
+	let corsHeaders = {
+		'Access-Control-Allow-Origin': env.FRONTEND_URL,
+		'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+		'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+		'Access-Control-Max-Age': '86400',
+	}
+
+	let app = {telegram, db, corsHeaders};
 
 	return await router.handle(request, app, env, ctx);
 }
@@ -29,7 +36,7 @@ router.get('/', () => {
 	return new Response('Hello, world! This is the root page of your Worker template.');
 });
 
-router.post('/miniAppInit', async (request, app) => {
+router.post('/initMiniApp', async (request, app) => {
 	const {telegram, db} = app;
 	let json = await request.json();
 	let initData = json.initData;
@@ -42,7 +49,7 @@ router.post('/miniAppInit', async (request, app) => {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	return new Response('Success', { status: 200 });
+	return new Response(JSON.stringify({result:`Success! You are ${data.user.first_name}!`}), { status: 200, headers: {...app.corsHeaders }});
 	
 });
 
@@ -62,11 +69,22 @@ router.post('/telegramMessage', async (request, app) => {
 	return new Response('Success', { status: 200 });
 });
 
-router.post('/updateTelegramMessages', async (request, app) => {
+router.get('/updateTelegramMessages', async (request, app, env) => {
+	if(!request.headers.get('Host').match(/^(localhost|127\.0\.0\.1)/)) {
+		return new Response('This request is only supposed to be used locally', { status: 403 });
+	}
 
-	//todo
+	const {telegram, db} = app;
+	let lastUpdateId = await db.getLatestUpdateId();
+	let updates = await telegram.getUpdates(lastUpdateId);
+	for (const update of updates.result) {
+		await processMessage(update, app);
+	}
 
-	return new Response('Success', { status: 200 });
+	return new Response(`Success!
+	Last update id: ${lastUpdateId}
+	Updates: 
+	${JSON.stringify(updates, null, 2)}`, { status: 200 });
 });
 
 router.post('/init', async (request, app, env) => {
@@ -90,6 +108,12 @@ router.post('/init', async (request, app, env) => {
 
 	return new Response('Success! ' + JSON.stringify(response), { status: 200 });
 });
+
+router.options('*', (request, app, env) => new Response('Success', {
+	headers: {
+		...app.corsHeaders
+	},
+	 status: 200 }));
 
 router.all('*', () => new Response('404, not found!', { status: 404 }));
 

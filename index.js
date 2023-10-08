@@ -62,7 +62,7 @@ router.post('/telegramMessage', async (request, app) => {
 	return new Response('Success', { status: 200 });
 });
 
-router.post('/init', async (request, app) => {
+router.post('/init', async (request, app, env) => {
 	if(request.headers.get('Authorization') !== `Bearer ${env.INIT_SECRET}`) {
 		return new Response('Unauthorized', { status: 401 });
 	}

@@ -2,12 +2,23 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import PopupMainButton from './PopupMainButton'
+import { useWebApp } from '@vkruglikov/react-telegram-web-app'
 
 function App() {
   const [count, setCount] = useState(0)
 
+  const { initDataUnsafe, initData, backgroundColor } = useWebApp()
+
+  useEffect(() => {
+    console.log('initData', initData);
+  }, [initData]);
+  
   return (
-    <>
+    <div
+    style={{
+      backgroundColor
+    }}>
       <div>
         <a href="https://vitejs.dev" target="_blank">
           <img src={viteLogo} className="logo" alt="Vite logo" />
@@ -19,7 +30,8 @@ function App() {
       <h1>Vite + React</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+          count is {count}<br/>
+          you are {initDataUnsafe?.user?.first_name}
         </button>
         <p>
           Edit <code>src/App.jsx</code> and save to test HMR
@@ -28,7 +40,8 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
-    </>
+      <PopupMainButton />
+    </div>
   )
 }
 

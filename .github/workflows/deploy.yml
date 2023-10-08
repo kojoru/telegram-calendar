@@ -49,7 +49,7 @@ jobs:
               run: |
                 wrangler deploy --var FRONTEND_URL=https://${{ steps.determine_worker_name.outputs.result }}.pages.dev
                 echo "${{ secrets.TELEGRAM_BOT_TOKEN }}" | wrangler secret put TELEGRAM_BOT_TOKEN
-                INIT_SECRET=$(openssl rand -base64 32)
+                INIT_SECRET=$(openssl rand -hex 24)
                 echo $INIT_SECRET | wrangler secret put INIT_SECRET
                 echo init_secret=$INIT_SECRET >> $GITHUB_OUTPUT
                 echo domain=${{ steps.determine_worker_name.outputs.result }}.${{ steps.determine_subdomain.outputs.result }}.workers.dev >> $GITHUB_OUTPUT

@@ -6,7 +6,7 @@ class Database {
     }
 
     async getSetting(settingName) {
-        return await env.DB.prepare(
+        return await this.db.prepare(
             "SELECT value FROM settings WHERE name = ?"
           )
             .bind(settingName)
@@ -14,7 +14,7 @@ class Database {
     }
 
     async initSetting(settingName, settingValue) {
-        return await env.DB.prepare(
+        return await this.db.prepare(
             "INSERT INTO settings (createdDate, name, value) VALUES (DATETIME('now'), ?, ?)"
           )
             .bind(settingName, settingValue)
@@ -22,7 +22,7 @@ class Database {
     }
 
     async addMessage(message) {
-        return await env.DB.prepare(
+        return await this.db.prepare(
             "INSERT INTO messages (createdDate, message) VALUES (DATETIME('now'), ?)"
           )
             .bind(message)
@@ -30,7 +30,7 @@ class Database {
     }
 
     async addInitDataCheck(initData, expectedHash, calculatedHash) {
-        return await env.DB.prepare(
+        return await this.db.prepare(
             "INSERT INTO initDataChecks (createdDate, initData, expectedHash, calculatedHash) VALUES (DATETIME('now'), ?, ?, ?, ?)"
           )
             .bind(initData, expectedHash, calculatedHash)

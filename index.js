@@ -57,7 +57,7 @@ router.post('/telegramMessage', async (request, app) => {
 	}
 
 	let message = await request.json();
-	processMessage(message, app);
+	await processMessage(message, app);
 
 	return new Response('Success', { status: 200 });
 });

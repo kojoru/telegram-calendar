@@ -18,5 +18,5 @@ CREATE TABLE IF NOT EXISTS initDataCheck (
   updatedDate text NOT NULL,
   initData text NOT NULL,
   expectedHash text NOT NULL,
-  calculatedHash text NOT NULL,
+  calculatedHash text NOT NULL
 );

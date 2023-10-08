@@ -63,7 +63,8 @@ jobs:
               run: |
                 npm install
                 npm run build
-                wrangler pages deploy ./build --project-name ${{ steps.determine_worker_name.outputs.result }}
+                wrangler pages deploy ./dist --project-name ${{ steps.determine_worker_name.outputs.result }}
+                
             - name: Send init command to worker
               run: |
                 curl -X POST -H "Authorization: Bearer ${{ steps.deploy_worker.outputs.init_secret }}" \

@@ -1,5 +1,6 @@
 import { Router } from 'itty-router';
 import { Telegram } from './telegram';
+import { Database } from './db';
 
 // Create a new router
 const router = Router();
@@ -11,16 +12,29 @@ router.get('/', () => {
 	return new Response('Hello, world! This is the root page of your Worker template.');
 });
 
+router.post('/miniAppInit', async (request, env) => {
+	let json = await request.json();
+	let telegram = new Telegram(env.TELEGRAM_BOT_TOKEN);
+	let db = new Database(env.DB);
+	let initData = json.initData;
+
+	let {expectedHash, calculatedHash, data} = await telegram.calculateHashes(initData);
+	db.addInitDataCheck(initData, expectedHash, calculatedHash);
+	console.log(data);
+
+	if(expectedHash !== calculatedHash) {
+		return new Response('Unauthorized', { status: 401 });
+	}
+
+	return new Response('Success', { status: 200 });
+	
+});
 
 router.post('/telegramMessage', async (request, env) => {
 
+	const db = new Database(env.DB);
 	const telegramProvidedToken = request.headers.get('X-Telegram-Bot-Api-Secret-Token');
-	const savedToken = await env.DB.prepare(
-        "SELECT value FROM settings WHERE name = ?"
-      )
-        .bind("telegram_security_code")
-        .first('value');
-
+	const savedToken = await db.getSetting("telegram_security_code");
 	
 	if (telegramProvidedToken !== savedToken) {
 		return new Response('Unauthorized', { status: 401 });
@@ -32,15 +46,10 @@ router.post('/telegramMessage', async (request, env) => {
 	const chatId = json.message.chat.id;
 	const reply_to_message_id = json.message.message_id;
 
-	// Serialize the JSON to a string.
 	const messageToSave = JSON.stringify(json, null, 2);
-
-	// Send a message to the chat acknowledging receipt of their message
 	await telegram.sendMessage(chatId, "```json" + messageToSave + "```", 'MarkdownV2', reply_to_message_id);	
 
-	await env.DB.prepare(
-		"INSERT INTO messages (message) VALUES (?)"
-	).bind(messageToSave).run();
+	db.addMessage(messageToSave);
 
 	return new Response('Success', { status: 200 });
 });
@@ -50,20 +59,13 @@ router.post('/init', async (request, env, ctx) => {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	const { results } = await env.DB.prepare(
-        "SELECT * FROM settings WHERE name = ?"
-      )
-        .bind("telegram_security_code")
-        .all();
+	const db = new Database(env.DB);
 
-	let token;
-	if (results.length === 0) {
+	let token = await db.getSetting("telegram_security_code");
+
+	if (token === null) {
 		token = crypto.getRandomValues(new Uint8Array(16)).join("");
-		await env.DB.prepare(
-			"INSERT INTO settings (name, value) VALUES (?, ?)"
-		).bind("telegram_security_code", token).run();
-	} else {
-		token = results[0].value;
+		await db.initSetting("telegram_security_code", token);
 	}
 
 	let json = await request.json();
@@ -72,15 +74,9 @@ router.post('/init', async (request, env, ctx) => {
 	let telegram = new Telegram(env.TELEGRAM_BOT_TOKEN);
 	let response = await telegram.setWebhook(`${externalUrl}/telegramMessage`, token);
 
-	return new Response('Success' + JSON.stringify(response), { status: 200 });
+	return new Response('Success! ' + JSON.stringify(response), { status: 200 });
 });
 
-/*
-This is the last route we define, it will match anything that hasn't hit a route we've defined
-above, therefore it's useful as a 404 (and avoids us hitting worker exceptions, so make sure to include it!).
-
-Visit any page that doesn't exist (e.g. /foobar) to see it in action.
-*/
 router.all('*', () => new Response('404, not found!', { status: 404 }));
 
 export default {

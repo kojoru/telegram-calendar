@@ -21,13 +21,13 @@ class Database {
             .run();
     }
 
-    async addMessage(message) {
+    async addMessage(message, updateId) {
         return await this.db.prepare(
             `INSERT 
-                INTO messages (createdDate, updatedDate, message)
-                VALUES (DATETIME('now'), DATETIME('now'), ?)`
+                INTO messages (createdDate, updatedDate, message, updateId)
+                VALUES (DATETIME('now'), DATETIME('now'), ?, ?)`
           )
-            .bind(message)
+            .bind(message, updateId)
             .run();
     }
 

@@ -9,7 +9,8 @@ CREATE TABLE IF NOT EXISTS messages (
   id integer PRIMARY KEY AUTOINCREMENT,
   createdDate text NOT NULL,
   updatedDate text NOT NULL,
-  message text NOT NULL
+  message text NOT NULL,
+  updateId text NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS initDataCheck (

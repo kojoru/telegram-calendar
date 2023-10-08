@@ -19,7 +19,7 @@ const processMessage = async (json, app) => {
 	const messageToSave = JSON.stringify(json, null, 2);
 	await telegram.sendMessage(chatId, "```json" + messageToSave + "```", 'MarkdownV2', reply_to_message_id);	
 
-	await db.addMessage(messageToSave);
+	await db.addMessage(messageToSave, json.update_id);
 };
 
 /*
@@ -58,6 +58,13 @@ router.post('/telegramMessage', async (request, app) => {
 
 	let messageJson = await request.json();
 	await processMessage(messageJson, app);
+
+	return new Response('Success', { status: 200 });
+});
+
+router.post('/updateTelegramMessages', async (request, app) => {
+
+	//todo
 
 	return new Response('Success', { status: 200 });
 });

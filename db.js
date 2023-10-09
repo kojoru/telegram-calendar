@@ -55,16 +55,16 @@ class Database {
                 VALUES (DATETIME('now'), DATETIME('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(telegramId) DO UPDATE SET
                     updatedDate = DATETIME('now'),
-                    lastAuthTimestamp = excluded.lastAuthTimestamp,
-                    isBot = excluded.isBot,
+                    lastAuthTimestamp = COALESCE(excluded.lastAuthTimestamp, lastAuthTimestamp),
+                    isBot = COALESCE(excluded.isBot, isBot),
                     firstName = excluded.firstName,
                     lastName = excluded.lastName,
                     username = excluded.username,
-                    languageCode = excluded.languageCode,
-                    isPremium = excluded.isPremium,
-                    addedToAttachmentMenu = excluded.addedToAttachmentMenu,
-                    allowsWriteToPm = excluded.allowsWriteToPm,
-                    photoUrl = excluded.photoUrl
+                    languageCode = COALESCE(excluded.languageCode, languageCode),
+                    isPremium = COALESCE(excluded.isPremium, isPremium),
+                    addedToAttachmentMenu = COALESCE(excluded.addedToAttachmentMenu, addedToAttachmentMenu),
+                    allowsWriteToPm = COALESCE(excluded.allowsWriteToPm, allowsWriteToPm),
+                    photoUrl = COALESCE(excluded.photoUrl, photoUrl)
                     WHERE excluded.lastAuthTimestamp > users.lastAuthTimestamp`
           )
             .bind(authTimestamp, 

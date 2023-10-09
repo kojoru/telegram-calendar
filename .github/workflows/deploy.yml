@@ -46,7 +46,7 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          wrangler d1 create --name ${{ steps.determine_database_name.outputs.result }}
+          wrangler d1 create ${{ steps.determine_database_name.outputs.result }}
           wrangler d1 execute DB --file init.sql
 
       - name: Build and deploy worker

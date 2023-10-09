@@ -1,31 +1,20 @@
-## Template: worker-router
+# Scaffolding for Telegram Bot with Mini App running in CloudFlare
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/main/worker-router)
+## Introduction
 
-This template demonstrates using the [`itty-router`](https://github.com/kwhitley/itty-router) package to add routing to your Cloudflare Workers.
+This package is batteries-included package for running [Telegram Bots](https://core.telegram.org/bots) and [Telegram Mini Apps](https://core.telegram.org/bots/webapps) on [CloudFlare Workers Platform](https://workers.cloudflare.com/).
 
-[`index.js`](https://github.com/cloudflare/worker-template-router/blob/master/index.js) is the content of the Workers script.
+Uses:
 
-## Setup
+* Cloudflare Workers for running backend
+* Cloudflare D1 for storing data and querying with SQL
+* React built with Vite for frontend
+* GitHub Actions and Wrangler for local running and deployment
 
-To create a `my-project` directory using this template, run:
+## Deploying
 
-```sh
-$ npx wrangler generate my-project worker
-# or
-$ yarn wrangler generate my-project worker
-# or
-$ pnpm wrangler generate my-project worker
-```
+The solution is fully deployable with GitHub Actions. You need to create a Cloudflare account and a Telegram Bot.
 
-Before publishing your code you need to edit `wrangler.toml` file and add your Cloudflare `account_id` - more information about configuring and publishing your code can be found [in the documentation](https://developers.cloudflare.com/workers/learning/getting-started).
 
-Once you are ready, you can publish your code by running the following command:
 
-```sh
-$ npm run deploy
-# or
-$ yarn run deploy
-# or
-$ pnpm run deploy
-```
+

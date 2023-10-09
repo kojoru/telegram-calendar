@@ -1,3 +1,9 @@
+const sha256 = async (body) => {
+    const enc = new TextEncoder();
+    const hashBuffer = await crypto.subtle.digest("SHA-256", enc.encode(body));
+    return new Uint8Array(hashBuffer);
+}
+
 const hmacSha256 = async (body, secret) => {
     // similar to https://stackoverflow.com/a/74428751/319229
         const enc = new TextEncoder();
@@ -33,4 +39,9 @@ const hex = (buffer) => {
     return digest;
 }
 
-export { hmacSha256, hex }
+const generateSecret = (bytes) => {
+    return hex(crypto.getRandomValues(new Uint8Array(bytes)));
+}
+
+
+export { sha256, hmacSha256, hex, generateSecret }

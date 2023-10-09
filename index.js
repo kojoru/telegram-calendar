@@ -1,6 +1,7 @@
 import { Router } from 'itty-router';
 import { Telegram } from './telegram';
 import { Database } from './db';
+import { generateSecret, sha256 } from './cryptoUtils';
 
 // Create a new router
 const router = Router();
@@ -42,15 +43,46 @@ router.post('/initMiniApp', async (request, app) => {
 	let initData = json.initData;
 
 	let {expectedHash, calculatedHash, data} = await telegram.calculateHashes(initData);
-	db.addInitDataCheck(initData, expectedHash, calculatedHash);
-	console.log(data);
 
 	if(expectedHash !== calculatedHash) {
 		return new Response('Unauthorized', { status: 401 });
 	}
 
-	return new Response(JSON.stringify({result:`Success! You are ${data.user.first_name}!`}), { status: 200, headers: {...app.corsHeaders }});
-	
+	const currentTime = Math.floor(Date.now() / 1000);
+	let stalenessSeconds = currentTime - data.auth_date;
+	if (stalenessSeconds > 600) {
+		return new Response('Stale data, please restart app', { status: 400 });
+	}
+
+	// Hashes match, the data is fresh enough, we can be fairly sure that the user is who they say they are
+	// Let's save the user to the database and return a token
+
+	let result = await db.saveUser(data.user, data.auth_date);
+	let token = generateSecret(16);
+	const tokenHash = await sha256(token);
+	await db.saveToken(data.user.id, tokenHash);
+
+	return new Response(JSON.stringify(
+		{
+			'token': token
+	}),
+		{ status: 200, headers: {...app.corsHeaders }});	
+});
+
+router.get('/miniApp/me', async (request, app) => {
+	const {db} = app;
+
+	let suppliedToken = request.headers.get('Authorization').replace('Bearer ', '');
+	const tokenHash = await sha256(suppliedToken);
+	let user = await db.getUserByTokenHash(tokenHash);
+
+	if (user === null) {
+		return new Response('Unauthorized', { status: 401 });
+	}
+
+	return new Response(JSON.stringify(
+		{user: user}),
+		{ status: 200, headers: {...app.corsHeaders }});	
 });
 
 router.post('/telegramMessage', async (request, app) => {

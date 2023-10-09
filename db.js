@@ -36,14 +36,64 @@ class Database {
             .run();
     }
 
-    async addInitDataCheck(initData, expectedHash, calculatedHash) {
+    async getUser(telegramId) {
+        return await this.db.prepare("SELECT * FROM users WHERE telegramId = ?")
+            .bind(telegramId)
+            .first();
+    }
+
+    async saveUser(user, authTimestamp) {
+        console.log(user);
+        console.log(authTimestamp);
+        // the following is an upsert, see https://sqlite.org/lang_upsert.html for more info
         return await this.db.prepare(
             `INSERT 
-                INTO initDataChecks (createdDate, updatedDate, initData, expectedHash, calculatedHash) 
-                VALUES (DATETIME('now'), DATETIME('now'), ?, ?, ?, ?)`
+                INTO users (createdDate, updatedDate, lastAuthTimestamp, 
+                    telegramId, isBot, firstName, lastName, username, languageCode,
+                    isPremium, addedToAttachmentMenu, allowsWriteToPm, photoUrl                  
+                    ) 
+                VALUES (DATETIME('now'), DATETIME('now'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(telegramId) DO UPDATE SET
+                    updatedDate = DATETIME('now'),
+                    lastAuthTimestamp = excluded.lastAuthTimestamp,
+                    isBot = excluded.isBot,
+                    firstName = excluded.firstName,
+                    lastName = excluded.lastName,
+                    username = excluded.username,
+                    languageCode = excluded.languageCode,
+                    isPremium = excluded.isPremium,
+                    addedToAttachmentMenu = excluded.addedToAttachmentMenu,
+                    allowsWriteToPm = excluded.allowsWriteToPm,
+                    photoUrl = excluded.photoUrl
+                    WHERE excluded.lastAuthTimestamp > users.lastAuthTimestamp`
           )
-            .bind(initData, expectedHash, calculatedHash)
+            .bind(authTimestamp, 
+                user.id, +user.is_bot, user.first_name||null, user.last_name||null, user.username||null, user.language_code||null,
+                +user.is_premium, +user.added_to_attachment_menu, +user.allows_write_to_pm, user.photo_url||null
+                )
             .run();
+    }
+
+    async saveToken(telegramId, tokenHash) {
+        const user = await this.getUser(telegramId);
+        console.log(user.id, tokenHash);
+        return await this.db.prepare(
+            `INSERT 
+                INTO tokens (createdDate, updatedDate, expiredDate, userId, tokenHash) 
+                VALUES (DATETIME('now'), DATETIME('now'), DATETIME('now', '+1 day'), ?, ?)`
+          )
+            .bind(user.id, tokenHash)
+            .run();
+    }
+
+    async getUserByTokenHash(tokenHash) {
+        return await this.db.prepare(
+            `SELECT users.* FROM tokens 
+                INNER JOIN users ON tokens.userId = users.id
+                WHERE tokenHash = ? AND DATETIME('now') < expiredDate`
+          )
+            .bind(tokenHash)
+            .first();
     }
 }
 

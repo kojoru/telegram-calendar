@@ -23,7 +23,9 @@ class TelegramAPI {
       
         dataCheckString = dataCheckString.slice(0, -1);
         let data = Object.fromEntries(urlParams);
-        data.user = JSON.parse(data.user);
+        data.user = JSON.parse(data.user||null);
+        data.receiver = JSON.parse(data.receiver||null);
+        data.chat = JSON.parse(data.chat||null);
 
         const secretKey = await hmacSha256(this.token, "WebAppData");
         const calculatedHash = hex(await hmacSha256(dataCheckString, secretKey));

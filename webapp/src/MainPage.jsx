@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import PopupMainButton from './PopupMainButton'
+import { initMiniApp, getMe } from './api'
 import { useWebApp } from '@vkruglikov/react-telegram-web-app'
 import {
   useQuery
@@ -12,24 +13,22 @@ function MainPage() {
 
   const { initDataUnsafe, initData, backgroundColor } = useWebApp()
 
-  const result = useQuery({
+  const initResult = useQuery({
     queryKey: ['initData'],
     queryFn: async () => {
-      const response = await fetch(import.meta.env.VITE_BACKEND_URL+'/initMiniApp', {
-        method: 'POST',
-        mode: 'cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(
-          {initData: initData}
-          ),
-      })
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
-      return response.json()
+      const result = await initMiniApp(initData);
+      return result;
+    }
+  });
+
+  const token = initResult?.data?.token;
+  const me = useQuery({
+    queryKey: ['me', token],
+    queryFn: async () => {
+      const result = await getMe(token);
+      return result;
     },
+    enabled: !!token,
   });
 
   return (
@@ -49,11 +48,12 @@ function MainPage() {
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}<br/>
-          you are {initDataUnsafe?.user?.first_name}<br/>
-          backend is {import.meta.env.VITE_BACKEND_URL}
         </button>
+        {/* <code>{JSON.stringify(initResult)}</code> */}
         <p>
-        {result.data?.result}
+        we thing you are {initDataUnsafe?.user?.first_name}<br/>
+        backend thinks you are {me?.data?.user?.firstName}<br/>
+        backend is {import.meta.env.VITE_BACKEND_URL}
         </p>
       </div>
       <PopupMainButton />

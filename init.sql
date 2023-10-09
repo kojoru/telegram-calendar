@@ -21,3 +21,33 @@ CREATE TABLE IF NOT EXISTS initDataCheck (
   expectedHash text NOT NULL,
   calculatedHash text NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS users (
+  id integer PRIMARY KEY AUTOINCREMENT,
+  createdDate text NOT NULL,
+  updatedDate text NOT NULL,
+  lastAuthTimestamp text NOT NULL,
+  telegramId integer UNIQUE NOT NULL,
+  username text,
+  isBot integer,
+  firstName text,
+  lastName text,
+  languageCode text,
+  isPremium integer,
+  addedToAttachmentMenu integer,
+  allowsWriteToPm integer,
+  photoUrl text
+);
+
+CREATE TABLE IF NOT EXISTS tokens (
+  id integer PRIMARY KEY AUTOINCREMENT,
+  createdDate text NOT NULL,
+  updatedDate text NOT NULL,
+  expiredDate text NOT NULL,
+  tokenHash text UNIQUE NOT NULL,
+  userId integer NOT NULL,
+  FOREIGN KEY(userId) REFERENCES users(id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS tokenHashIndex ON tokens (tokenHash);
+CREATE UNIQUE INDEX IF NOT EXISTS telegramIdIndex ON users (telegramId);

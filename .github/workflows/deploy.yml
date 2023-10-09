@@ -65,6 +65,7 @@ jobs:
         run: |
           npm install
           npm run build
+          wrangler pages project create ${{ steps.determine_worker_name.outputs.result }} --production-branch main || true
           wrangler pages deploy ./dist --project-name ${{ steps.determine_worker_name.outputs.result }}
           
       - name: Send init command to worker

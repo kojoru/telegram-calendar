@@ -48,7 +48,7 @@ jobs:
                 CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
                 CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
               run: |
-                wrangler deploy --var FRONTEND_URL=https://${{ steps.determine_worker_name.outputs.result }}.pages.dev
+                wrangler deploy --var FRONTEND_URL:https://${{ steps.determine_worker_name.outputs.result }}.pages.dev
                 echo "${{ secrets.TELEGRAM_BOT_TOKEN }}" | wrangler secret put TELEGRAM_BOT_TOKEN
                 INIT_SECRET=$(openssl rand -hex 24)
                 echo $INIT_SECRET | wrangler secret put INIT_SECRET

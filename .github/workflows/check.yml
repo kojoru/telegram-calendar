@@ -18,28 +18,28 @@ jobs:
         run: |
           result=0
           printf "### Checking if secrets are set 🔐\n\n" >> $GITHUB_STEP_SUMMARY
-          printf "| Secret | Description |" >> $GITHUB_STEP_SUMMARY
-          printf "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          printf "| Secret | Description |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| --- | --- |\n" >> $GITHUB_STEP_SUMMARY
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            printf "| ❌ `CLOUDFLARE_API_TOKEN`| Please go to [https://dash.cloudflare.com/profile/api-tokens](CloudFlare Dashboard) and create a Worker token. For this project we need access to Workers, D1 and Pages. |" >> $GITHUB_STEP_SUMMARY
+            printf "| ❌ \`CLOUDFLARE_API_TOKEN\`| Please go to [https://dash.cloudflare.com/profile/api-tokens](CloudFlare Dashboard) and create a Worker token. For this project we need access to Workers, D1 and Pages. |\n" >> $GITHUB_STEP_SUMMARY
             result=1
           else 
-            printf "| ✅ `CLOUDFLARE_API_TOKEN` | Found |" >> $GITHUB_STEP_SUMMARY
+            printf "| ✅ \`CLOUDFLARE_API_TOKEN\` | Found |\n" >> $GITHUB_STEP_SUMMARY
           fi
           if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            printf "| ❌ `CLOUDFLARE_ACCOUNT_ID` | Please go to [https://dash.cloudflare.com/?to=/:account/workers](CloudFlare Workers Page) and copy the account id from the right sidebar. Note that you might need to create a "Hello World" worker before you see the account id in the interface. |" >> $GITHUB_STEP_SUMMARY
+            printf "| ❌ \`CLOUDFLARE_ACCOUNT_ID\` | Please go to [https://dash.cloudflare.com/?to=/:account/workers](CloudFlare Workers Page) and copy the account id from the right sidebar. Note that you might need to create a "Hello World" worker before you see the account id in the interface. |\n" >> $GITHUB_STEP_SUMMARY
             result=1
           else 
-            printf "| ✅ `CLOUDFLARE_ACCOUNT_ID` | Found |" >> $GITHUB_STEP_SUMMARY
+            printf "| ✅ \`CLOUDFLARE_ACCOUNT_ID\` | Found |\n" >> $GITHUB_STEP_SUMMARY
           fi
           if [-z "$TELEGRAM_BOT_TOKEN" ]; then
-            printf "| ❌ `TELEGRAM_BOT_TOKEN` | Please create a Telegram bot via [@BotFather](https://t.me/botfather) and set the token as a secret in your repository. |" >> $GITHUB_STEP_SUMMARY
+            printf "| ❌ \`TELEGRAM_BOT_TOKEN\` | Please create a Telegram bot via [@BotFather](https://t.me/botfather) and set the token as a secret in your repository. |\n" >> $GITHUB_STEP_SUMMARY
             result=1
           else 
-            printf "| ✅ `TELEGRAM_BOT_TOKEN` | Found |" >> $GITHUB_STEP_SUMMARY
+            printf "| ✅ \`TELEGRAM_BOT_TOKEN\` | Found |\n" >> $GITHUB_STEP_SUMMARY
           fi
 
-          printf "\n\nTo set the secrets, go to [current repository's secrets settings](${{ github.server_url }}/${{ github.repository }}/settings/secrets/actions)" >> $GITHUB_STEP_SUMMARY
+          printf "\n\nTo set the secrets, go to [current repository's secrets settings](${{ github.server_url }}/${{ github.repository }}/settings/secrets/actions)\n" >> $GITHUB_STEP_SUMMARY
           exit $result
       
       - name: Checkout code

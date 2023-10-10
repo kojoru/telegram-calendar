@@ -1,7 +1,7 @@
 name: Deploy Cloudflare Pages
 
 on:
-  workflow_dispatch:
+  workflow_call:
     inputs:
       pages_name:
         description: 'Name to use for pages deployment'
@@ -9,12 +9,6 @@ on:
         type: string
       worker_url:
         description: 'URL of Worker deployment'
-        required: true
-        type: string
-  workflow_call:
-    inputs:
-      pages_name:
-        description: 'Name to use for pages deployment'
         required: true
         type: string
     outputs:

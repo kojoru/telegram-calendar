@@ -29,6 +29,7 @@ jobs:
     needs: precheck
     with:
       pages_name: ${{ needs.precheck.outputs.worker_name }}
+      worker_url: ${{ needs.precheck.outputs.worker_url }}
   
   deploy_worker:
     name: Deploy CloudFlare Worker

@@ -17,29 +17,29 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
           result=0
-          echo "### Checking if secrets are set 🔐\n\n" >> $GITHUB_STEP_SUMMARY
-          echo "| Secret | Description |" >> $GITHUB_STEP_SUMMARY
-          echo "| --- | --- |" >> $GITHUB_STEP_SUMMARY
+          printf "### Checking if secrets are set 🔐\n\n" >> $GITHUB_STEP_SUMMARY
+          printf "| Secret | Description |" >> $GITHUB_STEP_SUMMARY
+          printf "| --- | --- |" >> $GITHUB_STEP_SUMMARY
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            echo "| ❌ `CLOUDFLARE_API_TOKEN`| Please go to [https://dash.cloudflare.com/profile/api-tokens](CloudFlare Dashboard) and create a Worker token. For this project we need access to Workers, D1 and Pages. |" >> $GITHUB_STEP_SUMMARY
+            printf "| ❌ `CLOUDFLARE_API_TOKEN`| Please go to [https://dash.cloudflare.com/profile/api-tokens](CloudFlare Dashboard) and create a Worker token. For this project we need access to Workers, D1 and Pages. |" >> $GITHUB_STEP_SUMMARY
             result=1
           else 
-            echo "| ✅ `CLOUDFLARE_API_TOKEN` | Found |" >> $GITHUB_STEP_SUMMARY
+            printf "| ✅ `CLOUDFLARE_API_TOKEN` | Found |" >> $GITHUB_STEP_SUMMARY
           fi
           if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            echo "| ❌ `CLOUDFLARE_ACCOUNT_ID` | Please go to [https://dash.cloudflare.com/?to=/:account/workers](CloudFlare Workers Page) and copy the account id from the right sidebar. Note that you might need to create a "Hello World" worker before you see the account id in the interface. |" >> $GITHUB_STEP_SUMMARY
+            printf "| ❌ `CLOUDFLARE_ACCOUNT_ID` | Please go to [https://dash.cloudflare.com/?to=/:account/workers](CloudFlare Workers Page) and copy the account id from the right sidebar. Note that you might need to create a "Hello World" worker before you see the account id in the interface. |" >> $GITHUB_STEP_SUMMARY
             result=1
           else 
-            echo "| ✅ `CLOUDFLARE_ACCOUNT_ID` | Found |" >> $GITHUB_STEP_SUMMARY
+            printf "| ✅ `CLOUDFLARE_ACCOUNT_ID` | Found |" >> $GITHUB_STEP_SUMMARY
           fi
           if [-z "$TELEGRAM_BOT_TOKEN" ]; then
-            echo "| ❌ `TELEGRAM_BOT_TOKEN` | Please create a Telegram bot via [@BotFather](https://t.me/botfather) and set the token as a secret in your repository. |" >> $GITHUB_STEP_SUMMARY
+            printf "| ❌ `TELEGRAM_BOT_TOKEN` | Please create a Telegram bot via [@BotFather](https://t.me/botfather) and set the token as a secret in your repository. |" >> $GITHUB_STEP_SUMMARY
             result=1
           else 
-            echo "| ✅ `TELEGRAM_BOT_TOKEN` | Found |" >> $GITHUB_STEP_SUMMARY
+            printf "| ✅ `TELEGRAM_BOT_TOKEN` | Found |" >> $GITHUB_STEP_SUMMARY
           fi
 
-          echo "To set the secrets, go to [current repository's secrets settings](${{ github.server_url }}/${{ github.repository }}/settings/secrets/actions)" >> $GITHUB_STEP_SUMMARY
+          printf "\n\nTo set the secrets, go to [current repository's secrets settings](${{ github.server_url }}/${{ github.repository }}/settings/secrets/actions)" >> $GITHUB_STEP_SUMMARY
           exit $result
       
       - name: Checkout code
@@ -53,13 +53,13 @@ jobs:
       - name: Parse toml to get worker name
         id: determine_worker
         run: |
-          tomlq -r .name ./wrangler.toml | echo name=$(cat) >> $GITHUB_OUTPUT      
+          tomlq -r .name ./wrangler.toml | printf name=$(cat) >> $GITHUB_OUTPUT      
       
       - name: Parse toml to get database name and id
         id: determine_database
         run: |
-          tomlq -r .d1_databases[0].database_name ./wrangler.toml | echo name=$(cat) >> $GITHUB_OUTPUT
-          tomlq -r .d1_databases[0].database_id ./wrangler.toml | echo id=$(cat) >> $GITHUB_OUTPUT
+          tomlq -r .d1_databases[0].database_name ./wrangler.toml | printf name=$(cat) >> $GITHUB_OUTPUT
+          tomlq -r .d1_databases[0].database_id ./wrangler.toml | printf id=$(cat) >> $GITHUB_OUTPUT
            
       - name: Call CloudFlare API to determine the workers.dev subdomain
         id: get_subdomain
@@ -68,7 +68,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result.subdomain' | echo subdomain=$(cat).workers.dev >> $GITHUB_OUTPUT
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result.subdomain' | printf subdomain=$(cat).workers.dev >> $GITHUB_OUTPUT
            
       - name: Call CloudFlare API to find the database id by name
         id: get_db_id_by_name
@@ -77,7 +77,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database?name=${{ steps.determine_database.outputs.name }}" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[0].uuid' | echo uuid=$(cat) >> $GITHUB_OUTPUT           
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[0].uuid' | printf uuid=$(cat) >> $GITHUB_OUTPUT           
       
       - name: Call CloudFlare API to find the database name by id
         id: get_db_name_by_id
@@ -86,6 +86,6 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database/${{ steps.determine_database.outputs.id }}" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[0].name' | echo name=$(cat) >> $GITHUB_OUTPUT
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[0].name' | printf name=$(cat) >> $GITHUB_OUTPUT
 
  

@@ -50,7 +50,7 @@ jobs:
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        if: ${{ !contains(steps.get_db_id_by_name.outputs.uuid, 'uuid') }}
+        if: ${{ inputs.create_database }}
         run: |
           wrangler d1 create ${{ inputs.d1_database_name }}
 

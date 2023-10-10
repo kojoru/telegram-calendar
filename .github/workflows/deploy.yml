@@ -20,6 +20,7 @@ jobs:
     with:
       d1_database_name: ${{ needs.precheck.outputs.d1_database_name }}
       d1_database_id: ${{ needs.precheck.outputs.d1_database_id }}
+      create_database: ${{ needs.precheck.outputs.d1_apparent_database_id == 'null' }}
 
   deploy_pages:
     name: Deploy CloudFlare Pages

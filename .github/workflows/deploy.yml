@@ -81,3 +81,4 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"externalUrl": "https://${{ steps.deploy_worker.outputs.domain }}"}' \
             https://${{ steps.deploy_worker.outputs.domain }}/init
+ 

@@ -95,12 +95,17 @@ jobs:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
           curl -X GET https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/${{ steps.determine_worker.outputs.name }} \
-          -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result.canonical_deployment.aliases[0]' | echo url=$(cat) >> $GITHUB_OUTPUT
+          -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result.subdomain' | echo url=https://$(cat) >> $GITHUB_OUTPUT
       
       - name: Show all the outputs in summary
         id: show_outputs
         run: |
-          printf "\n\n### 🔍Gathering data\n" >> $GITHUB_STEP_SUMMARY
+          printf "# 🔥🔥 Deployment successful!\n\n" >> $GITHUB_STEP_SUMMARY
+          printf "Your Mini-App URL is ${{ steps.get_pages_url.outputs.url }}, you can now register it with @BotFather if you haven't already.\n\n" >> $GITHUB_STEP_SUMMARY
+          printf "Your Worker URL is <https://${{ steps.determine_worker.outputs.name }}.${{ steps.get_subdomain.outputs.subdomain }}>. You don't need to access it manually, it's registered to process the messages using the webhook.\n\n" >> $GITHUB_STEP_SUMMARY
+          
+          printf "\n\n<details> \n" >> $GITHUB_STEP_SUMMARY
+          printf "<summary> 🔍 See all data </summary>\n" >> $GITHUB_STEP_SUMMARY
           printf "| Name | Value | Description |\n" >> $GITHUB_STEP_SUMMARY
           printf "| --- | --- | --- |\n" >> $GITHUB_STEP_SUMMARY
           printf "| worker_name | \`${{ steps.determine_worker.outputs.name }}\` | The name of the worker set in \`wrangler.toml\` |\n" >> $GITHUB_STEP_SUMMARY
@@ -111,8 +116,9 @@ jobs:
           printf "| d1_database_id | \`${{ steps.determine_database.outputs.id }}\` | The id of the D1 database set in \`wrangler.toml\` |\n" >> $GITHUB_STEP_SUMMARY
           printf "| d1_apparent_database_name | \`${{ steps.get_db_name_by_id.outputs.name }}\` | The name of the database with the id from \`d1_database_id\` |\n" >> $GITHUB_STEP_SUMMARY
           printf "| d1_apparent_database_id | \`${{ steps.get_db_id_by_name.outputs.uuid }}\` | The id of the database with the name from \`d1_database_name\` |\n" >> $GITHUB_STEP_SUMMARY
-          printf "\n\n" >> $GITHUB_STEP_SUMMARY
+          printf "</details>\n\n" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ steps.get_db_id_by_name.outputs.uuid }}" != "${{ steps.determine_database.outputs.id }}" ] && [ "${{ steps.get_db_id_by_name.outputs.uuid }}" != "null" ] && [ -n "${{ steps.get_db_id_by_name.outputs.uuid }}" ]; then
-            printf "⚠️ The id of the database with the name from \`d1_database_name\` is different from the id in \`wrangler.toml\`. This is probably because you've forked a repository without changing the database id. The deployment scripts will handle it, but the wrangler tool won't. Please update the database id in \`wrangler.toml\` to be \`${{ steps.get_db_id_by_name.outputs.uuid }}\`.\n\n" >> $GITHUB_STEP_SUMMARY
+            printf "## ⚠️ Database ID Warning\n\n" >> $GITHUB_STEP_SUMMARY
+            printf "The id of the database used is different from the id in \`wrangler.toml\`. This is probably because you've forked a repository without changing the database id. The deployment scripts will handle it, but the wrangler tool won't. Please update the database id in \`wrangler.toml\` to be \`${{ steps.get_db_id_by_name.outputs.uuid }}\`.\n\n" >> $GITHUB_STEP_SUMMARY
           fi

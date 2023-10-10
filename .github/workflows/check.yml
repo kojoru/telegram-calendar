@@ -136,7 +136,7 @@ jobs:
         id: show_outputs
         run: |
           printf "\n\n<details> \n" >> $GITHUB_STEP_SUMMARY
-          printf "<summary> 🔍Gathering data</summary>\n" >> $GITHUB_STEP_SUMMARY
+          printf "<summary> 🔍Gathering data</summary>\n\n" >> $GITHUB_STEP_SUMMARY
           printf "| Name | Value | Description |\n" >> $GITHUB_STEP_SUMMARY
           printf "| --- | --- | --- |\n" >> $GITHUB_STEP_SUMMARY
           printf "| worker_name | \`${{ steps.determine_worker.outputs.name }}\` | The name of the worker set in \`wrangler.toml\` |\n" >> $GITHUB_STEP_SUMMARY
@@ -147,7 +147,7 @@ jobs:
           printf "| d1_database_id | \`${{ steps.determine_database.outputs.id }}\` | The id of the D1 database set in \`wrangler.toml\` |\n" >> $GITHUB_STEP_SUMMARY
           printf "| d1_apparent_database_name | \`${{ steps.get_db_name_by_id.outputs.name }}\` | The name of the database with the id from \`d1_database_id\` |\n" >> $GITHUB_STEP_SUMMARY
           printf "| d1_apparent_database_id | \`${{ steps.get_db_id_by_name.outputs.uuid }}\` | The id of the database with the name from \`d1_database_name\` |\n" >> $GITHUB_STEP_SUMMARY
-          printf "</details>\n" >> $GITHUB_STEP_SUMMARY
+          printf "\n\n</details>\n" >> $GITHUB_STEP_SUMMARY
           printf "\n\n" >> $GITHUB_STEP_SUMMARY
           
           if [ "${{ steps.get_db_id_by_name.outputs.uuid }}" != "${{ steps.determine_database.outputs.id }}" ] && [ "${{ steps.get_db_id_by_name.outputs.uuid }}" != "null" ] && [ -n "${{ steps.get_db_id_by_name.outputs.uuid }}" ]; then

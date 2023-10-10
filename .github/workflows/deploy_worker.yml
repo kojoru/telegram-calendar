@@ -47,7 +47,7 @@ jobs:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |         
-          wrangler deploy --var FRONTEND_URL:${{ github.event.inputs.pages_url }}
+          wrangler deploy --var FRONTEND_URL:${{ inputs.pages_url }}
           echo "${{ secrets.TELEGRAM_BOT_TOKEN }}" | wrangler secret put TELEGRAM_BOT_TOKEN
           INIT_SECRET=$(openssl rand -hex 24)
           echo $INIT_SECRET | wrangler secret put INIT_SECRET

@@ -7,25 +7,25 @@ on:
       worker_name:
         value: ${{ jobs.deploy.outputs.worker_name }}
         description: The name of the CloudFlare worker
-      subdomain:
+      worker_subdomain:
         value: ${{ jobs.deploy.outputs.subdomain }}
         description: The subdomain of the CloudFlare worker
       worker_url:
-        value: https://${{ jobs.deploy.outputs.worker_name }}.${{ jobs.deploy.outputs.subdomain }}.workers.dev
+        value: https://${{ jobs.deploy.outputs.worker_name }}.${{ jobs.deploy.outputs.subdomain }}
         description: The URL of the CloudFlare worker  
       pages_url:
         value: ${{ jobs.deploy.outputs.pages_url }}
         description: The URL of the CloudFlare Pages deployment
-      database_name:
+      d1_database_name:
         value: ${{ jobs.deploy.outputs.database_name }}
         description: The name of the CloudFlare database as described in wrangler.toml
-      apparent_database_name:
+      d1_apparent_database_name:
         value: ${{ jobs.deploy.outputs.database_apparent_name }}
         description: The name of the CloudFlare database as determined by its id
-      database_id:
+      d1_database_id:
         value: ${{ jobs.deploy.outputs.database_id }}
         description: The id of the CloudFlare database as described in wrangler.toml
-      apparent_database_id:
+      d1_apparent_database_id:
         value: ${{ jobs.deploy.outputs.database_apparent_id }}
         description: The id of the CloudFlare database as determined by its name
       
@@ -136,13 +136,18 @@ jobs:
         id: show_outputs
         run: |
           printf "\n\n### Outputs\n" >> $GITHUB_STEP_SUMMARY
-          printf "| Name | Value |\n" >> $GITHUB_STEP_SUMMARY
-          printf "| --- | --- |\n" >> $GITHUB_STEP_SUMMARY
-          printf "| worker_name | ${{ steps.determine_worker.outputs.name }} |\n" >> $GITHUB_STEP_SUMMARY
-          printf "| subdomain | ${{ steps.get_subdomain.outputs.subdomain }} |\n" >> $GITHUB_STEP_SUMMARY
-          printf "| worker_url | https://${{ steps.determine_worker.outputs.name }}.${{ steps.get_subdomain.outputs.subdomain }}.workers.dev |\n" >> $GITHUB_STEP_SUMMARY
-          printf "| pages_url | ${{ steps.get_pages_url.outputs.url }} |\n" >> $GITHUB_STEP_SUMMARY
-          printf "| database_name | ${{ steps.determine_database.outputs.name }} |\n" >> $GITHUB_STEP_SUMMARY
-          printf "| apparent_database_name | ${{ steps.get_db_name_by_id.outputs.name }} |\n" >> $GITHUB_STEP_SUMMARY
-          printf "| database_id | ${{ steps.determine_database.outputs.id }} |\n" >> $GITHUB_STEP_SUMMARY
-          printf "| apparent_database_id | ${{ steps.get_db_id_by_name.outputs.uuid }} |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| Name | Value | Description |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| --- | --- | --- |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| worker_name | `${{ steps.determine_worker.outputs.name }}` | The name of the worker set in `wrangler.toml` |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| worker_subdomain | `${{ steps.get_subdomain.outputs.subdomain }}` | The subdomain for workers set up in your CloudFlare account |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| worker_url | `https://${{ steps.determine_worker.outputs.name }}.${{ steps.get_subdomain.outputs.subdomain }}` | The full URL worker will be deployed to or is already deployed to |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| pages_url | `${{ steps.get_pages_url.outputs.url }}` | The full URL Pages are deployed to. Null if not yet deployed. |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| d1_database_name | `${{ steps.determine_database.outputs.name }}` | The name of the D1 database set in `wrangler.toml` |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| d1_database_id | `${{ steps.determine_database.outputs.id }}` | The id of the D1 database set in `wrangler.toml` |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| d1_apparent_database_name | `${{ steps.get_db_name_by_id.outputs.name }}` | The name of the database with the id from `d1_database_id` |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| d1_apparent_database_id | ${{ steps.get_db_id_by_name.outputs.uuid }} | The id of the database with the name from `d1_database_name` |\n" >> $GITHUB_STEP_SUMMARY
+          printf "\n\n" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ steps.get_db_id_by_name.outputs.uuid }}" != "${{ steps.determine_database.outputs.id }}" ]; then
+            printf "⚠️ The id of the database with the name from \`d1_database_name\` is different from the id in `wrangler.toml`. This is probably because you've forked a repository without changing the database id. The deployment scripts will handle it, but the wrangler tool won't. Please update the database id in \`wrangler.toml\` to be \`${{ steps.get_db_id_by_name.outputs.uuid }}\`.\n\n" >> $GITHUB_STEP_SUMMARY
+          fi

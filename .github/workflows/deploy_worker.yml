@@ -1,0 +1,62 @@
+name: Deploy Cloudflare Worker
+
+on:
+  workflow_call:
+    inputs:
+      d1_database_id:
+        description: 'Database id in toml'
+        required: true
+        type: string
+      d1_apparent_database_id:
+        description: 'Database id to actually use'
+        required: true
+        type: string
+      pages_url:
+        description: 'URL of frontend deployment in pages for CORS'
+        required: true
+        type: string
+      worker_url:
+        description: 'URL of worker deployment'
+        required: true
+        type: string
+
+
+jobs:
+  deploy:
+    name: Deploy Cloudflare Worker, D1 Database, and Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Cloudflare Workers CLI
+        run: |
+          npm install -g wrangler
+
+      - name: Install dependencies
+        run: npm install --production
+
+      - name: Replace database id in wrangler.toml
+        run: |
+          sed -i -e 's/${{ inputs.d1_database_id }}/${{ inputs.d1_apparent_database_id }}/g' wrangler.toml
+          cat wrangler.toml
+
+      - name: Build and deploy worker
+        id: deploy_worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |         
+          wrangler deploy --var FRONTEND_URL:${{ github.event.inputs.pages_url }}
+          echo "${{ secrets.TELEGRAM_BOT_TOKEN }}" | wrangler secret put TELEGRAM_BOT_TOKEN
+          INIT_SECRET=$(openssl rand -hex 24)
+          echo $INIT_SECRET | wrangler secret put INIT_SECRET
+          echo init_secret=$INIT_SECRET >> $GITHUB_OUTPUT
+          
+      - name: Send init command to worker
+        run: |
+          curl -X POST -H "Authorization: Bearer ${{ steps.deploy_worker.outputs.init_secret }}" \
+            -H "Content-Type: application/json" \
+            -d '{"externalUrl": "${{ inputs.worker_url }}"}' \
+            ${{ inputs.worker_url }}/init
+ 

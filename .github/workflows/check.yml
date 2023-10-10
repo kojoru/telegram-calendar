@@ -52,7 +52,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
         run: |
           result=0
-          printf "### Checking if secrets are set 🔐\n\n" >> $GITHUB_STEP_SUMMARY
+          printf "### 🔐 Checking if secrets are set \n\n" >> $GITHUB_STEP_SUMMARY
           printf "| Secret | Description |\n" >> $GITHUB_STEP_SUMMARY
           printf "| --- | --- |\n" >> $GITHUB_STEP_SUMMARY
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
@@ -83,9 +83,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install Cloudflare Workers CLI and tomlq
+      - name: Install tomlq
         run: |
-          # npm install -g wrangler
           pip install yq
       
       - name: Parse toml to get worker name

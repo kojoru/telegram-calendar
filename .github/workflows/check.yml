@@ -57,18 +57,21 @@ jobs:
           printf "| --- | --- |\n" >> $GITHUB_STEP_SUMMARY
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
             printf "| ❌ \`CLOUDFLARE_API_TOKEN\`| Please go to (CloudFlare Dashboard)[https://dash.cloudflare.com/profile/api-tokens] and create a Worker token. For this project we need access to Workers, D1 and Pages. |\n" >> $GITHUB_STEP_SUMMARY
+            echo "::error::Secret CLOUDFLARE_API_TOKEN not set"
             result=1
           else 
             printf "| ✅ \`CLOUDFLARE_API_TOKEN\` | Found |\n" >> $GITHUB_STEP_SUMMARY
           fi
           if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
             printf "| ❌ \`CLOUDFLARE_ACCOUNT_ID\` | Please go to [CloudFlare Workers Page](https://dash.cloudflare.com/?to=/:account/workers) and copy the account id from the right sidebar. Note that you might need to create a \"Hello World\" worker before you see the account id in the interface. |\n" >> $GITHUB_STEP_SUMMARY
+            echo "::error::Secret CLOUDFLARE_ACCOUNT_ID not set"
             result=1
           else 
             printf "| ✅ \`CLOUDFLARE_ACCOUNT_ID\` | Found |\n" >> $GITHUB_STEP_SUMMARY
           fi
-          if [-z "$TELEGRAM_BOT_TOKEN" ]; then
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
             printf "| ❌ \`TELEGRAM_BOT_TOKEN\` | Please create a Telegram bot via [@BotFather](https://t.me/botfather) and set the token as a secret in your repository. |\n" >> $GITHUB_STEP_SUMMARY
+            echo "::error::Secret TELEGRAM_BOT_TOKEN not set"
             result=1
           else 
             printf "| ✅ \`TELEGRAM_BOT_TOKEN\` | Found |\n" >> $GITHUB_STEP_SUMMARY

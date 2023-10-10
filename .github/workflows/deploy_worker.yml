@@ -58,5 +58,11 @@ jobs:
           curl -X POST -H "Authorization: Bearer ${{ steps.deploy_worker.outputs.init_secret }}" \
             -H "Content-Type: application/json" \
             -d '{"externalUrl": "${{ inputs.worker_url }}"}' \
+            --max-time 10 \
+            --retry 5 \
+            --retry-delay 0 \
+            --retry-max-time 40 \
+            --retry-all-errors \
+            --fail \
             ${{ inputs.worker_url }}/init
  

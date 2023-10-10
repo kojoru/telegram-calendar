@@ -55,4 +55,4 @@ jobs:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
           curl -X GET https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/${{ inputs.pages_name }} \
-          -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result.canonical_deployment.aliases[0]' | echo url=$(cat) >> $GITHUB_OUTPUT
+          -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result.subdomain' | echo url=https://$(cat) >> $GITHUB_OUTPUT

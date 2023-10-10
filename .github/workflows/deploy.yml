@@ -8,23 +8,31 @@ on:
 
 jobs:
   precheck:
+    name: Check things
     uses: ./.github/workflows/check.yml
+    secrets: inherit
 
   prepare_db:
+    name: Prepare database
     uses: ./.github/workflows/prepare_db.yml
+    secrets: inherit
     needs: precheck
     with:
       d1_database_name: ${{ needs.precheck.outputs.d1_database_name }}
       d1_database_id: ${{ needs.precheck.outputs.d1_database_id }}
 
   deploy_pages:
+    name: Deploy CloudFlare Pages
     uses: ./.github/workflows/deploy_pages.yml
+    secrets: inherit
     needs: precheck
     with:
       pages_name: ${{ needs.precheck.outputs.worker_name }}
   
   deploy_worker:
+    name: Deploy CloudFlare Worker
     uses: ./.github/workflows/deploy_worker.yml
+    secrets: inherit
     needs: [precheck, prepare_db, deploy_pages]
     with:
       d1_database_id: ${{ needs.precheck.outputs.d1_database_id }}

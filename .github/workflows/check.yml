@@ -56,7 +56,7 @@ jobs:
           printf "| Secret | Description |\n" >> $GITHUB_STEP_SUMMARY
           printf "| --- | --- |\n" >> $GITHUB_STEP_SUMMARY
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            printf "| ❌ \`CLOUDFLARE_API_TOKEN\`| Please go to (CloudFlare Dashboard)[https://dash.cloudflare.com/profile/api-tokens] and create a Worker token. For this project we need access to Workers, D1 and Pages. |\n" >> $GITHUB_STEP_SUMMARY
+            printf "| ❌ \`CLOUDFLARE_API_TOKEN\`| Please go to [CloudFlare Dashboard](https://dash.cloudflare.com/profile/api-tokens) and create a Worker token. For this project we need access to Workers, D1 and Pages. |\n" >> $GITHUB_STEP_SUMMARY
             echo "::error::Secret CLOUDFLARE_API_TOKEN not set"
             result=1
           else 

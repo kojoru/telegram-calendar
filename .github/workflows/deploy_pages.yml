@@ -39,8 +39,8 @@ jobs:
       - name: Deploy webapp to Cloudflare Pages
         working-directory: ./webapp
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           VITE_BACKEND_URL: ${{ inputs.worker_url }}
         run: |
           npm install
@@ -51,8 +51,8 @@ jobs:
       - name: Call CloudFlare API to find Pages URL
         id: get_pages_url
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          curl -X GET https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/${{ inputs.pages_name }} \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result.canonical_deployment.aliases[0]' | echo url=$(cat) >> $GITHUB_OUTPUT
+          curl -X GET https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/pages/projects/${{ inputs.pages_name }} \
+          -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result.canonical_deployment.aliases[0]' | echo url=$(cat) >> $GITHUB_OUTPUT

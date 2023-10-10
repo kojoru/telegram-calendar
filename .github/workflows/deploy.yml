@@ -1,4 +1,4 @@
-name: Deploy full solution
+name: Deploy
 
 on:
   push:
@@ -40,7 +40,3 @@ jobs:
       d1_apparent_database_id: ${{ needs.prepare_db.outputs.d1_apparent_database_id }}
       pages_url: ${{ needs.deploy_pages.outputs.pages_url }}
       worker_url: ${{ needs.precheck.outputs.worker_url }}
-
-
-
-    

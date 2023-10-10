@@ -48,8 +48,8 @@ jobs:
       
       - name: Create the D1 database
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         if: ${{ inputs.create_database }}
         run: |
           wrangler d1 create ${{ inputs.d1_database_name }}
@@ -57,11 +57,11 @@ jobs:
       - name: Call CloudFlare API to find the database id by name
         id: get_db_id_by_name
         env: 
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database?name=${{ inputs.d1_database_name }}" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[0].uuid' | echo uuid=$(cat) >> $GITHUB_OUTPUT    
+          curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/d1/database?name=${{ inputs.d1_database_name }}" \
+          -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result[0].uuid' | echo uuid=$(cat) >> $GITHUB_OUTPUT    
 
       - name: Replace database id in wrangler.toml
         run: |
@@ -70,7 +70,7 @@ jobs:
 
       - name: Initialize the database
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
           wrangler d1 execute DB --file init.sql

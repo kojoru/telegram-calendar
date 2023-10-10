@@ -56,13 +56,13 @@ jobs:
           printf "| Secret | Description |\n" >> $GITHUB_STEP_SUMMARY
           printf "| --- | --- |\n" >> $GITHUB_STEP_SUMMARY
           if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
-            printf "| ❌ \`CLOUDFLARE_API_TOKEN\`| Please go to [https://dash.cloudflare.com/profile/api-tokens](CloudFlare Dashboard) and create a Worker token. For this project we need access to Workers, D1 and Pages. |\n" >> $GITHUB_STEP_SUMMARY
+            printf "| ❌ \`CLOUDFLARE_API_TOKEN\`| Please go to (CloudFlare Dashboard)[https://dash.cloudflare.com/profile/api-tokens] and create a Worker token. For this project we need access to Workers, D1 and Pages. |\n" >> $GITHUB_STEP_SUMMARY
             result=1
           else 
             printf "| ✅ \`CLOUDFLARE_API_TOKEN\` | Found |\n" >> $GITHUB_STEP_SUMMARY
           fi
           if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            printf "| ❌ \`CLOUDFLARE_ACCOUNT_ID\` | Please go to [https://dash.cloudflare.com/?to=/:account/workers](CloudFlare Workers Page) and copy the account id from the right sidebar. Note that you might need to create a "Hello World" worker before you see the account id in the interface. |\n" >> $GITHUB_STEP_SUMMARY
+            printf "| ❌ \`CLOUDFLARE_ACCOUNT_ID\` | Please go to [CloudFlare Workers Page](https://dash.cloudflare.com/?to=/:account/workers) and copy the account id from the right sidebar. Note that you might need to create a \"Hello World\" worker before you see the account id in the interface. |\n" >> $GITHUB_STEP_SUMMARY
             result=1
           else 
             printf "| ✅ \`CLOUDFLARE_ACCOUNT_ID\` | Found |\n" >> $GITHUB_STEP_SUMMARY
@@ -135,7 +135,7 @@ jobs:
       - name: Show all the outputs in summary
         id: show_outputs
         run: |
-          printf "\n\n### Outputs\n" >> $GITHUB_STEP_SUMMARY
+          printf "\n\n### 🔍Gathering data\n" >> $GITHUB_STEP_SUMMARY
           printf "| Name | Value | Description |\n" >> $GITHUB_STEP_SUMMARY
           printf "| --- | --- | --- |\n" >> $GITHUB_STEP_SUMMARY
           printf "| worker_name | \`${{ steps.determine_worker.outputs.name }}\` | The name of the worker set in \`wrangler.toml\` |\n" >> $GITHUB_STEP_SUMMARY
@@ -148,6 +148,6 @@ jobs:
           printf "| d1_apparent_database_id | \`${{ steps.get_db_id_by_name.outputs.uuid }}\` | The id of the database with the name from \`d1_database_name\` |\n" >> $GITHUB_STEP_SUMMARY
           printf "\n\n" >> $GITHUB_STEP_SUMMARY
           
-          if [ "${{ steps.get_db_id_by_name.outputs.uuid }}" != "${{ steps.determine_database.outputs.id }}" ]; then
-            printf "⚠️ The id of the database with the name from \`d1_database_name\` is different from the id in `wrangler.toml`. This is probably because you've forked a repository without changing the database id. The deployment scripts will handle it, but the wrangler tool won't. Please update the database id in \`wrangler.toml\` to be \`${{ steps.get_db_id_by_name.outputs.uuid }}\`.\n\n" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.get_db_id_by_name.outputs.uuid }}" != "${{ steps.determine_database.outputs.id }}" ] && [ "${{ steps.get_db_id_by_name.outputs.uuid }}" != "null" ] && [ -n "${{ steps.get_db_id_by_name.outputs.uuid }}" ]; then
+            printf "⚠️ The id of the database with the name from \`d1_database_name\` is different from the id in \`wrangler.toml\`. This is probably because you've forked a repository without changing the database id. The deployment scripts will handle it, but the wrangler tool won't. Please update the database id in \`wrangler.toml\` to be \`${{ steps.get_db_id_by_name.outputs.uuid }}\`.\n\n" >> $GITHUB_STEP_SUMMARY
           fi

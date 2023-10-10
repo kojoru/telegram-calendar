@@ -23,7 +23,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Cloudflare Worker, D1 Database, and Pages
+    name: Deploy Cloudflare Worker
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

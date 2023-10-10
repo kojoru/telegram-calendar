@@ -1,4 +1,4 @@
-name: Deploy Cloudflare Worker
+name: Deploy and initialise D1 Database
 
 on:
   workflow_dispatch:
@@ -33,7 +33,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy Cloudflare Worker, D1 Database, and Pages
+    name: Deploy and initialise D1 Database
     runs-on: ubuntu-latest
     outputs:
       database_apparent_id: ${{ steps.get_db_id_by_name.outputs.uuid }}

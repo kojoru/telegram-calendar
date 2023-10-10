@@ -28,8 +28,6 @@ on:
       d1_apparent_database_id:
         value: ${{ jobs.deploy.outputs.database_apparent_id }}
         description: The id of the CloudFlare database as determined by its name
-      
-
 
 jobs:
   deploy:

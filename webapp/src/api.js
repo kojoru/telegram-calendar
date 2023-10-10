@@ -30,4 +30,22 @@ const getMe = async (token) => {
 	return response.json()
 }
 
-export { initMiniApp, getMe }
+const sendDates = async(token, dates) => {
+	const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/miniApp/dates', {
+		method: 'POST',
+		mode: 'cors',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': `Bearer ${token}`
+		},
+		body: JSON.stringify(
+			{ dates: dates }
+		),
+	})
+	if (!response.ok) {
+		throw new Error(`Bot error: ${response.status} ${response.statusText}}`)
+	}
+	return response.json()
+}
+
+export { initMiniApp, getMe, sendDates }

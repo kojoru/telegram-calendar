@@ -95,6 +95,16 @@ class Database {
 			.bind(tokenHash)
 			.first();
 	}
+
+	async saveCalendar(calendarJson, calendarRef, userId) {
+		return await this.db.prepare(
+			`INSERT 
+				INTO calendars (createdDate, updatedDate, calendarJson, calendarRef, userId) 
+				VALUES (DATETIME('now'), DATETIME('now'), ?, ?, ?)`
+			)
+			.bind(calendarJson, calendarRef, userId)
+			.run();
+	}
 }
 
 export { Database }

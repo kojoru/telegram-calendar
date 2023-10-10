@@ -1,6 +1,7 @@
 import { Router } from 'itty-router';
 import { Telegram } from './telegram';
 import { Database } from './db';
+import { processMessage } from './messageProcessor';
 import { generateSecret, sha256 } from './cryptoUtils';
 
 // Create a new router
@@ -19,22 +20,12 @@ const handle = async (request, env, ctx) => {
 
 	return await router.handle(request, app, env, ctx);
 }
-const processMessage = async (json, app) => {
-	const {telegram, db} = app;
-	const chatId = json.message.chat.id;
-	const reply_to_message_id = json.message.message_id;
-
-	const messageToSave = JSON.stringify(json, null, 2);
-	await telegram.sendMessage(chatId, "```json" + messageToSave + "```", 'MarkdownV2', reply_to_message_id);	
-
-	await db.addMessage(messageToSave, json.update_id);
-};
 
 /*
 Our index route, a simple hello world.
 */
 router.get('/', () => {
-	return new Response('Hello, world! This is the root page of your Worker template.');
+	return new Response('This telegram bot is deployed correctly. No user-serviceable parts inside.', { status: 200 });
 });
 
 router.post('/initMiniApp', async (request, app) => {
@@ -45,13 +36,13 @@ router.post('/initMiniApp', async (request, app) => {
 	let {expectedHash, calculatedHash, data} = await telegram.calculateHashes(initData);
 
 	if(expectedHash !== calculatedHash) {
-		return new Response('Unauthorized', { status: 401 });
+		return new Response('Unauthorized', { status: 401, headers: {...app.corsHeaders } });
 	}
 
 	const currentTime = Math.floor(Date.now() / 1000);
 	let stalenessSeconds = currentTime - data.auth_date;
 	if (stalenessSeconds > 600) {
-		return new Response('Stale data, please restart app', { status: 400 });
+		return new Response('Stale data, please restart app', { status: 400, headers: {...app.corsHeaders } });
 	}
 
 	// Hashes match, the data is fresh enough, we can be fairly sure that the user is who they say they are
@@ -64,7 +55,8 @@ router.post('/initMiniApp', async (request, app) => {
 
 	return new Response(JSON.stringify(
 		{
-			'token': token
+			'token': token,
+			'startParam': data.start_param,
 	}),
 		{ status: 200, headers: {...app.corsHeaders }});	
 });
@@ -79,6 +71,32 @@ router.get('/miniApp/me', async (request, app) => {
 	if (user === null) {
 		return new Response('Unauthorized', { status: 401 });
 	}
+
+	return new Response(JSON.stringify(
+		{user: user}),
+		{ status: 200, headers: {...app.corsHeaders }});	
+});
+
+router.post('/miniApp/dates', async (request, app) => {
+	const {db, telegram} = app;
+
+	let suppliedToken = request.headers.get('Authorization').replace('Bearer ', '');
+	const tokenHash = await sha256(suppliedToken);
+	let user = await db.getUserByTokenHash(tokenHash);
+
+	if (user === null) {
+		return new Response('Unauthorized', { status: 401 });
+	}
+
+	let ref = await generateSecret(8);
+	let json = await request.json();
+	let jsonToSave = JSON.stringify({dates: json.dates}); // todo: more validation
+	if (jsonToSave.length > 4096) { return new Response('Too much data', { status: 400 }); }
+
+	await db.saveCalendar(jsonToSave, ref, user.id);
+
+	let result = await telegram.sendMessage(user.telegramId, "Your calendar is ready and available for share using [this link](https://t.me/group_meetup_bot/calendar?startapp="+ ref +")\\. Send it to your friends so that they can choose a date\\.", 'MarkdownV2');
+	console.log(result);
 
 	return new Response(JSON.stringify(
 		{user: user}),

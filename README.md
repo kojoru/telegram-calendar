@@ -102,7 +102,7 @@ Make sure that the you've deployed at least once and set your own database id in
 
 Then create a `.dev.vars` file using `.dev.vars.example` as a template and fill in the values. If you set `TELEGRAM_USE_TEST_API` to true you'll be able to use the bot in the [Telegram test environment](https://core.telegram.org/bots/webapps#testing-mini-apps), otherwise you'll be connected to production. Keep in mind that tokens between the environments are different.
 
-Do an `npm install` and initialize the database with `npx wrangler d1 execute DB --file .\init.sql --local`. 
+Do an `npm install` and initialize the database with `npx wrangler d1 execute DB --file .\init.sql --local`.
 
 Now you are ready to run the worker with `npx wrangler dev`. The worker will be waiting for you at <http://localhost:8787/>.
 
@@ -118,3 +118,30 @@ while true; do
     sleep 3
 done
 ```
+
+## Code information
+
+The backend code is a CloudFlare Worker. Start with `index.js` to get a general idea of how it works.
+
+We export `telegram.js` for working with telegram, `db.js` for working with the database and `cryptoUtils.js` for cryptography.
+
+There are no dependencies except for `itty-router`, which makes the whole affair blazing fast.
+
+For database we use CloudFlare D1, which is a version of SQLite. We initialize it with `init.sql` file.
+
+The frontend code is a React app built with Vite. The entry point is `webapp/src/main.jsx`. This is mostly a standard React app, except it uses excellent [@vkruglikov/react-telegram-web-app](https://github.com/vkruglikov/react-telegram-web-app) to wrap around the telegram mini app API.
+
+The frontend code can be replaced with anything that can be served as a static website. The only requirement is that the built code after `npm run build` is in the `webapp/dist` folder.
+
+## Security features
+
+All the needed checks are done:
+
+* The bot checks the signatures of the webhook requests
+* The bot checks the signatures of the Mini-app requests and validates the user
+* The bot checks the token of initialization request sent during deployment
+* CORS between the frontend and the backend is locked down to specifically used domains
+
+## Sample bot
+
+You can try out the bot at [@group_meetup_bot](https://t.me/group_meetup_bot).

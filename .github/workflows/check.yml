@@ -3,11 +3,46 @@ name: Check inputs and gather data
 on:
   workflow_dispatch:
   workflow_call:
+    outputs:
+      worker_name:
+        value: ${{ jobs.deploy.outputs.worker_name }}
+        description: The name of the CloudFlare worker
+      subdomain:
+        value: ${{ jobs.deploy.outputs.subdomain }}
+        description: The subdomain of the CloudFlare worker
+      worker_url:
+        value: https://${{ jobs.deploy.outputs.worker_name }}.${{ jobs.deploy.outputs.subdomain }}.workers.dev
+        description: The URL of the CloudFlare worker  
+      pages_url:
+        value: ${{ jobs.deploy.outputs.pages_url }}
+        description: The URL of the CloudFlare Pages deployment
+      database_name:
+        value: ${{ jobs.deploy.outputs.database_name }}
+        description: The name of the CloudFlare database as described in wrangler.toml
+      apparent_database_name:
+        value: ${{ jobs.deploy.outputs.database_apparent_name }}
+        description: The name of the CloudFlare database as determined by its id
+      database_id:
+        value: ${{ jobs.deploy.outputs.database_id }}
+        description: The id of the CloudFlare database as described in wrangler.toml
+      apparent_database_id:
+        value: ${{ jobs.deploy.outputs.database_apparent_id }}
+        description: The id of the CloudFlare database as determined by its name
+      
+
 
 jobs:
   deploy:
     name: Check inputs and gather data
     runs-on: ubuntu-latest
+    outputs:
+      worker_name: ${{ steps.determine_worker.outputs.name }}
+      database_name: ${{ steps.determine_database.outputs.name }}
+      database_id: ${{ steps.determine_database.outputs.id }}
+      subdomain: ${{ steps.get_subdomain.outputs.subdomain }}
+      database_apparent_id: ${{ steps.get_db_id_by_name.outputs.uuid }}
+      database_apparent_name: ${{ steps.get_db_name_by_id.outputs.name }}
+      pages_url: ${{ steps.get_pages_url.outputs.url }}
     steps:
       - name: Check that the secrets are set in the repository
         id: check_secrets_set
@@ -87,5 +122,28 @@ jobs:
         run: |
           curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database/${{ steps.determine_database.outputs.id }}" \
           -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[0].name' | printf name=$(cat) >> $GITHUB_OUTPUT
-
- 
+      
+      - name: Call CloudFlare API to find Pages URL
+        id: get_pages_url
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_KEY }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          curl -X GET https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/${{ steps.determine_worker.outputs.name }} \
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result.canonical_deployment.aliases[0]' | printf url=$(cat) >> $GITHUB_OUTPUT
+      
+      - name: Show all the outputs in summary
+        id: show_outputs
+        run: |
+          printf "\n\n### Outputs\n" >> $GITHUB_STEP_SUMMARY
+          printf "| Name | Value |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| --- | --- |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| worker_name | ${{ steps.determine_worker.outputs.name }} |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| subdomain | ${{ steps.get_subdomain.outputs.subdomain }} |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| worker_url | https://${{ steps.determine_worker.outputs.name }}.${{ steps.get_subdomain.outputs.subdomain }}.workers.dev |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| pages_url | ${{ steps.get_pages_url.outputs.url }} |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| database_name | ${{ steps.determine_database.outputs.name }} |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| apparent_database_name | ${{ steps.get_db_name_by_id.outputs.name }} |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| database_id | ${{ steps.determine_database.outputs.id }} |\n" >> $GITHUB_STEP_SUMMARY
+          printf "| apparent_database_id | ${{ steps.get_db_id_by_name.outputs.uuid }} |\n" >> $GITHUB_STEP_SUMMARY
+          

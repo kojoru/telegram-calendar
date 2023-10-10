@@ -82,19 +82,19 @@ jobs:
 
       - name: Install Cloudflare Workers CLI and tomlq
         run: |
-          npm install -g wrangler
+          # npm install -g wrangler
           pip install yq
       
       - name: Parse toml to get worker name
         id: determine_worker
         run: |
-          tomlq -r .name ./wrangler.toml | printf name=$(cat) >> $GITHUB_OUTPUT      
+          tomlq -r .name ./wrangler.toml | printf name=$(cat)\n >> $GITHUB_OUTPUT      
       
       - name: Parse toml to get database name and id
         id: determine_database
         run: |
-          tomlq -r .d1_databases[0].database_name ./wrangler.toml | printf name=$(cat) >> $GITHUB_OUTPUT
-          tomlq -r .d1_databases[0].database_id ./wrangler.toml | printf id=$(cat) >> $GITHUB_OUTPUT
+          tomlq -r .d1_databases[0].database_name ./wrangler.toml | printf name=$(cat)\n >> $GITHUB_OUTPUT
+          tomlq -r .d1_databases[0].database_id ./wrangler.toml | printf id=$(cat)\n >> $GITHUB_OUTPUT
            
       - name: Call CloudFlare API to determine the workers.dev subdomain
         id: get_subdomain
@@ -103,7 +103,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result.subdomain' | printf subdomain=$(cat).workers.dev >> $GITHUB_OUTPUT
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result.subdomain' | printf subdomain=$(cat).workers.dev\n >> $GITHUB_OUTPUT
            
       - name: Call CloudFlare API to find the database id by name
         id: get_db_id_by_name
@@ -112,7 +112,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database?name=${{ steps.determine_database.outputs.name }}" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[0].uuid' | printf uuid=$(cat) >> $GITHUB_OUTPUT           
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[0].uuid' | printf uuid=$(cat)\n >> $GITHUB_OUTPUT           
       
       - name: Call CloudFlare API to find the database name by id
         id: get_db_name_by_id
@@ -121,7 +121,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/d1/database/${{ steps.determine_database.outputs.id }}" \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[0].name' | printf name=$(cat) >> $GITHUB_OUTPUT
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result[0].name' | printf name=$(cat)\n >> $GITHUB_OUTPUT
       
       - name: Call CloudFlare API to find Pages URL
         id: get_pages_url
@@ -130,7 +130,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           curl -X GET https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/${{ steps.determine_worker.outputs.name }} \
-          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result.canonical_deployment.aliases[0]' | printf url=$(cat) >> $GITHUB_OUTPUT
+          -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" | jq -r '.result.canonical_deployment.aliases[0]' | printf url=$(cat)\n >> $GITHUB_OUTPUT
       
       - name: Show all the outputs in summary
         id: show_outputs
@@ -146,4 +146,3 @@ jobs:
           printf "| apparent_database_name | ${{ steps.get_db_name_by_id.outputs.name }} |\n" >> $GITHUB_STEP_SUMMARY
           printf "| database_id | ${{ steps.determine_database.outputs.id }} |\n" >> $GITHUB_STEP_SUMMARY
           printf "| apparent_database_id | ${{ steps.get_db_id_by_name.outputs.uuid }} |\n" >> $GITHUB_STEP_SUMMARY
-          

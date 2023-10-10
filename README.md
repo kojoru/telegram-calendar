@@ -23,9 +23,37 @@ Fork the repository, then go to Settings > Secrets and add the following secrets
 * `CF_ACCOUNT_ID` - Cloudflare account ID
 * `TELEGRAM_BOT_TOKEN` - Telegram Bot token
 
-Then go to Actions, accept the security prompt and run the `Deploy` workflow. After the workflow is finished, the bot will be ready to go. The workflow will give you the URL to use for your mini-app.
+### Getting the values for secrets
 
-To add the mini-app you'll need to send the `/newapp` command to [@BotFather](https://t.me/BotFather) and follow the instructions.
+![Getting account ID](./docs/img/cf-accountId.svg)
+
+Go to [CloudFlare Workers Page](https://dash.cloudflare.com/?to=/:account/workers) and copy the account id from the right sidebar. Note that if you have no workers yet, you'll need to create a worker before you can see the account id. Luckily, there's a button for a "Hello World" worker right there. Once you've gotten the account id, set it in `CF_ACCOUNT_ID` secret.
+
+While you're in that interface, you can also adjust the subdomain to your liking.
+
+![Creating a token](./docs/img/cf-token.svg)
+
+Go to [CloudFlare Dashboard](https://dash.cloudflare.com/profile/api-tokens) and create a token with the following permissions:
+
+* `Account:Account Settings:Read`
+* `Account:CloudFlare Pages:Edit`
+* `Account:D1:Edit`
+* `Account:User Details:Read`
+* `Account:Workers Scripts:Edit`
+* `User:Memberships:Read`
+* `Zone:Workers Routes:Edit`
+
+Once you've generated the token, set it in `CF_API_TOKEN` secret.
+
+For getting a telegram token, go to [@BotFather](https://t.me/BotFather) and create a new bot with the `/newbot` command. Once you've created the bot, copy the token and set it in `TELEGRAM_BOT_TOKEN` secret.
+
+### Running the GitHub Actions workflow
+
+After you've set up the tokens go to Actions, accept the security prompt and run the `Deploy` workflow. After the workflow is finished, the bot will be ready to go. The workflow will give you the URL to use for your mini-app.
+
+### Setting up the mini-app
+
+To add the mini-app you'll need to go back to [@BotFather](https://t.me/BotFather) and send the `/newapp` command. For some reason, an image is mandatory on this step, you can use a [placeholder](https://placehold.co/640x360) in the beginning.
 
 Also, it's recommended that you update the `wrangler.toml` file with your own database ID as instructed by the workflow.
 

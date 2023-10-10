@@ -40,3 +40,9 @@ jobs:
       d1_apparent_database_id: ${{ needs.prepare_db.outputs.d1_apparent_database_id }}
       pages_url: ${{ needs.deploy_pages.outputs.pages_url }}
       worker_url: ${{ needs.precheck.outputs.worker_url }}
+  
+  finalise:
+    name: Final output
+    uses: ./.github/workflows/finalise.yml
+    secrets: inherit
+    needs: [deploy_worker, deploy_pages, prepare_db]

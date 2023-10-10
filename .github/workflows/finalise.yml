@@ -1,7 +1,6 @@
 name: Output the result of the deployment
 
 on:
-  workflow_dispatch:
   workflow_call:
     outputs:
       worker_name:
@@ -33,7 +32,7 @@ on:
 
 jobs:
   deploy:
-    name: Check inputs and gather data
+    name: Final checks and outputs
     runs-on: ubuntu-latest
     outputs:
       worker_name: ${{ steps.determine_worker.outputs.name }}

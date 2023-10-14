@@ -16,11 +16,15 @@ class Database {
 		return Number(result);
 	}
 
-	async initSetting(settingName, settingValue) {
+	async setSetting(settingName, settingValue) {
 		return await this.db.prepare(
 			`INSERT 
 				INTO settings (createdDate, updatedDate, name, value)
-				VALUES (DATETIME('now'), DATETIME('now'), ?, ?)`
+				VALUES (DATETIME('now'), DATETIME('now'), ?, ?)
+				ON CONFLICT(name) DO UPDATE SET
+					updatedDate = DATETIME('now'),
+					value = excluded.value
+					WHERE excluded.value <> settings.value`
 		  )
 			.bind(settingName, settingValue)
 			.run();

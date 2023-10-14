@@ -45,7 +45,7 @@ class TelegramAPI {
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify(params)
+			body: JSON.stringify(params),
 		});
 		return response.json();
 	}
@@ -86,6 +86,17 @@ class TelegramAPI {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify(params)
+		});
+		return response.json();
+	}
+
+	async getMe() {
+		const url = `${this.apiBaseUrl}getMe`;
+		const response = await fetch(url, {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json'
+			}
 		});
 		return response.json();
 	}

@@ -86,11 +86,10 @@ In a different terminal, set up the tunnel:
 ```bash
 devtunnel user login
 devtunnel create # note the tunnel ID
-devtunnel port create <tunnel id> -p 5173
-devtunnel tunnel start --port 5173 # use the port from the previous step
+devtunnel port create -p 5173
 ```
 
-Then you can start the tunnel as needed with `devtunnel host --allow-anonymous <tunnel id>`.
+Then you can start the tunnel as needed with `devtunnel host --allow-anonymous`.
 
 For the mini-app setup you need the URL that uses 443 port, it will look something like `https://aaaaaaaa-5173.euw.devtunnels.ms`.
 

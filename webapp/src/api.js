@@ -1,5 +1,5 @@
 const initMiniApp = async (initData) => {
-	const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/initMiniApp', {
+	const response = await fetch(import.meta.env.VITE_BACKEND_URL + '/miniApp/init', {
 		method: 'POST',
 		mode: 'cors',
 		headers: {

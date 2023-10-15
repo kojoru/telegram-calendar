@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import 'react-day-picker/dist/style.css';
-import { initMiniApp, sendDates } from './api'
-import { MainButton, useWebApp } from '@vkruglikov/react-telegram-web-app'
-import { useQuery, useMutation } from '@tanstack/react-query'
-import { format } from 'date-fns';
+import { initMiniApp } from './api'
+import { useWebApp } from '@vkruglikov/react-telegram-web-app'
+import { useQuery } from '@tanstack/react-query'
 import { DayPicker } from 'react-day-picker';
+import Calendar from './Calendar';
+import Home from './Home';
 
 function MainPage() {
 	const { ready, initData, backgroundColor } = useWebApp()
@@ -21,68 +22,32 @@ function MainPage() {
 		}
 	});
 
-	const token = initResult?.data?.token;
+	const {token, startParam } = initResult?.data || {};
 
-	let sendingError = false;
-	// send selected dates to backend:
-	const dateMutation = useMutation({
-		mutationKey: ['sendDate', token],
-		mutationFn: async (dates) => {
-			const result = await sendDates(token, dates.map(date => format(date, 'yyyy-MM-dd')));
-			return result;
-		},
-		onSuccess: () => {
-			window.Telegram.WebApp.close();
-		},
-		onError: () => {
-			sendingError = true;
-		},
-	});
 
-	const [selectedDates, setSelected] = useState();
-
-	let footer = <p>Please pick the days you propose for the meetup.</p>;
-	let mainButton = "";
-
-	if (selectedDates) {
-		footer = (
-			<p>
-			You picked {selectedDates.length}{' '}
-			{selectedDates.length > 1 ? 'dates' : 'date'}: {' '}
-			{selectedDates.map((date, index) => (
-				<span key={date.getTime()}>
-				{index ? ', ' : ''}
-				{format(date, 'PP')}
-				</span>
-			))}
-			</p>
-		);
-		mainButton = <MainButton text="Select dates" onClick={async () => { dateMutation.mutate(selectedDates) }} />;
+	if (initResult.isLoading) {
+		return (
+			<div
+			style={{
+				backgroundColor
+			}}>
+				<div>
+				<DayPicker
+					mode="single"
+					disabled={true}
+					/>
+				</div>
+			</div>
+		)
 	}
-
-	if (initResult.isError || sendingError) {
+	if (initResult.isError ) {
 		return <div>Error! Try reloading the app</div>
 	}
-	return (
-		<div
-		style={{
-			backgroundColor
-		}}>
-			<h2>Pick proposed dates</h2>
-			<div>
-			<DayPicker
-				mode="multiple"
-				min={1}
-				max={5}
-				selected={selectedDates}
-				onSelect={setSelected}
-				footer={footer}
-				disabled={initResult.isLoading || dateMutation.isLoading}
-				/>
-			</div>
-			{mainButton}
-		</div>
-	)
+	if (initResult?.data?.startPage === 'calendar') {
+		return <Calendar token={token} apiRef={startParam}/>
+	}
+	return <Home token={token} />
+
 }
 
 export default MainPage

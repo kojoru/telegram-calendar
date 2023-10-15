@@ -59,5 +59,18 @@ CREATE TABLE IF NOT EXISTS calendars (
 	FOREIGN KEY(userId) REFERENCES users(id)
 );
 
+CREATE TABLE IF NOT EXISTS selectedDates (
+	id integer PRIMARY KEY AUTOINCREMENT,
+	createdDate text NOT NULL,
+	updatedDate text NOT NULL,
+	userId integer NOT NULL,
+	calendarId integer NOT NULL,
+	selectedDatesJson text NOT NULL,
+	FOREIGN KEY(userId) REFERENCES users(id),
+	FOREIGN KEY(calendarId) REFERENCES calendars(id)
+);
+
+CREATE UNIQUE INDEX IF NOT EXISTS userSelectedDatesIndex ON selectedDates (userId, calendarId);
+
 CREATE UNIQUE INDEX IF NOT EXISTS tokenHashIndex ON tokens (tokenHash);
 CREATE UNIQUE INDEX IF NOT EXISTS telegramIdIndex ON users (telegramId);

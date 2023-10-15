@@ -62,6 +62,7 @@ router.post('/miniApp/init', async (request, app) => {
 		{
 			'token': token,
 			'startParam': data.start_param,
+			'startPage': data.start_param? 'calendar' : 'home',
 			'user': await db.getUser(data.user.id)
 	}),
 		{ status: 200, headers: {...app.corsHeaders }});	
@@ -80,6 +81,21 @@ router.get('/miniApp/me', async (request, app) => {
 
 	return new Response(JSON.stringify(
 		{user: user}),
+		{ status: 200, headers: {...app.corsHeaders }});	
+});
+
+router.get('/miniApp/calendar/:ref', async (request, app) => {
+	const {db} = app;
+
+	let ref = request.params.ref;
+	let calendar = await db.getCalendarByRef(ref);
+
+	if (calendar === null) {
+		return new Response('Not found', { status: 404 });
+	}
+
+	return new Response(JSON.stringify(
+		{calendar: JSON.parse(calendar)}),
 		{ status: 200, headers: {...app.corsHeaders }});	
 });
 

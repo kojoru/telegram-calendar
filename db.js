@@ -109,6 +109,15 @@ class Database {
 			.bind(calendarJson, calendarRef, userId)
 			.run();
 	}
+
+	async getCalendarByRef(calendarRef) {
+		return await this.db.prepare(
+			`SELECT calendarJson FROM calendars 
+				WHERE calendarRef = ?`
+			)
+			.bind(calendarRef)
+			.first('calendarJson');
+	}
 }
 
 export { Database }

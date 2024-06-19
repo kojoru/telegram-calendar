@@ -5,4 +5,4 @@ compatibility_date = "2023-10-07"
 [[d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
 database_name = "telegram-calendar"
-database_id = "4e1c28a9-90e4-41da-8b4b-6cf36e5abb29"
+database_id = "1a7f7d2a-e1b6-4db9-95cb-05cbe087822c"

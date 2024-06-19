@@ -14,10 +14,10 @@ class MessageSender {
         const message =
 `Hello!
 
-${format.bold("Group Meetup Facilitator")} helps you organize group meetups, e. g. in-person events or\
+"Group Meetup Facilitator" helps you organize group meetups, e. g. in-person events or\
  calls. Here's how it works:
 
-1. Organizer accesses ${format.url("the calendar", `https://t.me/${this.botName}/calendar`)} \
+1. Organizer accesses "the calendar" \
 to set options for when the group can meet
 2. Organizer receives a link to share with the group
 3. Group members vote for the options that work for them
@@ -25,7 +25,7 @@ to set options for when the group can meet
 
 And that's it!
 
-Go to ${format.url("the calendar", `https://t.me/${this.botName}/calendar`)} to get started`;
+Go to https://t.me/${this.botName}/calendar to get started`;
 
         return await this.sendMessage(chatId, message, replyToMessageId);
     }

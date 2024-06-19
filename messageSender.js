@@ -23,9 +23,7 @@ to set options for when the group can meet
 3. Group members vote for the options that work for them
 4. Organizer receives a summary of the votes and can pick the best option
 
-And that's it!
-
-Go to https://t.me/${this.botName}/calendar to get started`;
+And that's it!`;
 
         return await this.sendMessage(chatId, message, replyToMessageId);
     }

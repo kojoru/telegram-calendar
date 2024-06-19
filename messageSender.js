@@ -11,7 +11,7 @@ class MessageSender {
     }
 
     async sendGreeting(chatId, replyToMessageId) {
-        const message = `Hello!`;
+        const message = "Hello!";
 
         return await this.sendMessage(chatId, message, replyToMessageId);
     }

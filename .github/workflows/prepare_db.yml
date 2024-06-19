@@ -29,7 +29,7 @@ on:
       d1_apparent_database_id:
         value: ${{ jobs.deploy.outputs.database_apparent_id }}
         description: The id of the CloudFlare database as determined by its name
-    
+
 
 jobs:
   deploy:
@@ -45,7 +45,7 @@ jobs:
         run: |
           npm install -g wrangler
           pip install yq
-      
+
       - name: Create the D1 database
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
@@ -56,12 +56,12 @@ jobs:
 
       - name: Call CloudFlare API to find the database id by name
         id: get_db_id_by_name
-        env: 
+        env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
           curl -X GET "https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/d1/database?name=${{ inputs.d1_database_name }}" \
-          -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result[0].uuid' | echo uuid=$(cat) >> $GITHUB_OUTPUT    
+          -H "Authorization: Bearer $CF_API_TOKEN" | jq -r '.result[0].uuid' | echo uuid=$(cat) >> $GITHUB_OUTPUT
 
       - name: Replace database id in wrangler.toml
         run: |
@@ -73,4 +73,4 @@ jobs:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
         run: |
-          wrangler d1 execute DB --file init.sql
+          wrangler d1 execute DB --remote --file init.sql

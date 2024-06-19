@@ -11,7 +11,21 @@ class MessageSender {
     }
 
     async sendGreeting(chatId, replyToMessageId) {
-        const message = "Hello!";
+        const message =
+`Hello!
+
+"Group Meetup Facilitator" helps you organize group meetups, e. g. in-person events or\
+ calls. Here's how it works:
+
+1. Organizer accesses "the calendar" \
+to set options for when the group can meet
+2. Organizer receives a link to share with the group
+3. Group members vote for the options that work for them
+4. Organizer receives a summary of the votes and can pick the best option
+
+And that's it!
+
+Go to https://t.me/${this.botName}/calendar to get started`;
 
         return await this.sendMessage(chatId, message, replyToMessageId);
     }

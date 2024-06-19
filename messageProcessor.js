@@ -17,7 +17,7 @@ const processMessage = async (json, app) => {
 	await messageSender.sendMessage(chatId, "Test 2", replyToMessageId);
 
     if (json.message.text === '/start') {
-			await messageSender.sendMessage(chatId, "Test 3", replyToMessageId);
+			await messageSender.sendGreeting(chatId, replyToMessageId);
         return await messageSender.sendGreeting(chatId, replyToMessageId);
     }
 

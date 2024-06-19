@@ -17,7 +17,7 @@ class MessageSender {
 ${format.bold("Group Meetup Facilitator")} helps you organize group meetups, e. g. in-person events or\
  calls. Here's how it works:
 
-1. Organizer accesses ${format.link("the calendar", `https://t.me/${this.botName}/calendar`)} \
+1. Organizer accesses ${format.url("the calendar", `https://t.me/${this.botName}/calendar`)} \
 to set options for when the group can meet
 2. Organizer receives a link to share with the group
 3. Group members vote for the options that work for them
@@ -25,7 +25,7 @@ to set options for when the group can meet
 
 And that's it!
 
-Go to ${format.link("the calendar", `https://t.me/${this.botName}/calendar`)} to get started`;
+Go to ${format.url("the calendar", `https://t.me/${this.botName}/calendar`)} to get started`;
 
         return await this.sendMessage(chatId, message, replyToMessageId);
     }
@@ -44,7 +44,7 @@ or just copy the link from it.`;
 
 Please click on the link below to vote for the dates that work for you. You can vote for multiple dates:
 
-${format.link(`https://t.me/${this.botName}/calendar?startapp=${calendarRef}`, `https://t.me/${this.botName}/calendar?startapp=${calendarRef}`)}`;
+${format.url(`https://t.me/${this.botName}/calendar?startapp=${calendarRef}`, `https://t.me/${this.botName}/calendar?startapp=${calendarRef}`)}`;
 
         return await this.sendMessage(chatId, linkMessage);
     }

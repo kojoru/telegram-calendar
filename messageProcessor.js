@@ -9,11 +9,14 @@ const processMessage = async (json, app) => {
 	const replyToMessageId = json.message.message_id;
 
 	const messageToSave = JSON.stringify(json, null, 2);
+
+	await messageSender.sendMessage(chatId, "Test", replyToMessageId);
+
 	await db.addMessage(messageToSave, json.update_id);
 
     if (json.message.text === '/start') {
         return await messageSender.sendGreeting(chatId, replyToMessageId);
-    } 
+    }
 
 	return "Skipped message";
 };

@@ -14,9 +14,14 @@ const processMessage = async (json, app) => {
 
 	await db.addMessage(messageToSave, json.update_id);
 
+	await messageSender.sendMessage(chatId, "Test 2", replyToMessageId);
+
     if (json.message.text === '/start') {
+			await messageSender.sendMessage(chatId, "Test 3", replyToMessageId);
         return await messageSender.sendGreeting(chatId, replyToMessageId);
     }
+
+		await messageSender.sendMessage(chatId, "Test 4", replyToMessageId);
 
 	return "Skipped message";
 };
